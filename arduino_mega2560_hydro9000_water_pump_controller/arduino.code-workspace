@@ -1,0 +1,68 @@
+{
+	"folders": [
+		{
+			"name":"Water Pumps",
+			"path": "."
+		},
+		{
+			"name": "Libraries",
+			"path": "C:\\Users\\ellio\\Documents\\Arduino\\libraries"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"associative_base": "cpp",
+			"bitset": "cpp",
+			"deque": "cpp",
+			"list": "cpp",
+			"vector": "cpp",
+			"set": "cpp",
+			"istream": "cpp",
+			"complex": "cpp",
+			"algorithm": "cpp",
+			"basic_definitions": "cpp",
+			"cctype": "cpp",
+			"char_traits": "cpp",
+			"cmath": "cpp",
+			"csignal": "cpp",
+			"cstddef": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp",
+			"ctime": "cpp",
+			"cwchar": "cpp",
+			"cwctype": "cpp",
+			"exception": "cpp",
+			"func_exception": "cpp",
+			"functional": "cpp",
+			"initializer_list": "cpp",
+			"iomanip": "cpp",
+			"ios": "cpp",
+			"iosfwd": "cpp",
+			"iostream": "cpp",
+			"istream_helpers": "cpp",
+			"iterator": "cpp",
+			"iterator_base": "cpp",
+			"limits": "cpp",
+			"locale": "cpp",
+			"map": "cpp",
+			"memory": "cpp",
+			"new": "cpp",
+			"numeric": "cpp",
+			"ostream": "cpp",
+			"ostream_helpers": "cpp",
+			"queue": "cpp",
+			"serstream": "cpp",
+			"sstream": "cpp",
+			"stack": "cpp",
+			"stdexcept": "cpp",
+			"streambuf": "cpp",
+			"string": "cpp",
+			"string_iostream": "cpp",
+			"type_traits": "cpp",
+			"typeinfo": "cpp",
+			"utility": "cpp",
+			"valarray": "cpp"
+		}
+	}
+}
