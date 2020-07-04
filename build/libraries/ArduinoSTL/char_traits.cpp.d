@@ -1,4 +1,4 @@
-c:\Users\ellio\Documents\Personal\Projects\Plant\ Water\ Pump\build\libraries\ArduinoSTL\char_traits.cpp.o: \
+c:\Users\ellio\Documents\Personal\Projects\hydro-9000-automatic-plant-watering\build\libraries\ArduinoSTL\char_traits.cpp.o: \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src\char_traits.cpp \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/basic_definitions \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/system_configuration.h \

@@ -1,4 +1,4 @@
-c:\Users\ellio\Documents\Personal\Projects\Plant\ Water\ Pump\build\libraries\SPI\SPI.cpp.o: \
+c:\Users\ellio\Documents\Personal\Projects\hydro-9000-automatic-plant-watering\build\libraries\SPI\SPI.cpp.o: \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\libraries\SPI\src\SPI.cpp \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\libraries\SPI\src\SPI.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \

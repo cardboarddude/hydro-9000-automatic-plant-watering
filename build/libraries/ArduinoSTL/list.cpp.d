@@ -1,4 +1,4 @@
-c:\Users\ellio\Documents\Personal\Projects\Plant\ Water\ Pump\build\libraries\ArduinoSTL\list.cpp.o: \
+c:\Users\ellio\Documents\Personal\Projects\hydro-9000-automatic-plant-watering\build\libraries\ArduinoSTL\list.cpp.o: \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src\list.cpp \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/list \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/memory \

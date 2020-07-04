@@ -1,4 +1,4 @@
-c:\Users\ellio\Documents\Personal\Projects\Plant\ Water\ Pump\build\libraries\ArduinoSTL\ostream_helpers.cpp.o: \
+c:\Users\ellio\Documents\Personal\Projects\hydro-9000-automatic-plant-watering\build\libraries\ArduinoSTL\ostream_helpers.cpp.o: \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src\ostream_helpers.cpp \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/ostream_helpers \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/basic_definitions \

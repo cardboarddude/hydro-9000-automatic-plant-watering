@@ -1,7 +1,7 @@
 {
 	"folders": [
 		{
-			"name":"Water Pumps",
+			"name":"Hydro9000",
 			"path": "."
 		},
 		{
@@ -62,7 +62,14 @@
 			"type_traits": "cpp",
 			"typeinfo": "cpp",
 			"utility": "cpp",
-			"valarray": "cpp"
-		}
+			"valarray": "cpp",
+			"xstring": "cpp",
+			"xhash": "cpp",
+			"xutility": "cpp",
+			"unordered_map": "cpp"
+		},
+		"cSpell.words": [
+			"SWITCHCAPVCC"
+		]
 	}
 }

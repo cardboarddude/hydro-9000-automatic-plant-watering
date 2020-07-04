@@ -1,4 +1,4 @@
-c:\Users\ellio\Documents\Personal\Projects\Plant\ Water\ Pump\build\libraries\ArduinoSTL\eh_globals.cpp.o: \
+c:\Users\ellio\Documents\Personal\Projects\hydro-9000-automatic-plant-watering\build\libraries\ArduinoSTL\eh_globals.cpp.o: \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src\eh_globals.cpp \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/cstdlib \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/basic_definitions \

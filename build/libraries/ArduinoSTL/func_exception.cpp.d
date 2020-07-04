@@ -1,4 +1,4 @@
-c:\Users\ellio\Documents\Personal\Projects\Plant\ Water\ Pump\build\libraries\ArduinoSTL\func_exception.cpp.o: \
+c:\Users\ellio\Documents\Personal\Projects\hydro-9000-automatic-plant-watering\build\libraries\ArduinoSTL\func_exception.cpp.o: \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src\func_exception.cpp \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/exception \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/basic_definitions \

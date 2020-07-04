@@ -1,4 +1,4 @@
-c:\Users\ellio\Documents\Personal\Projects\Plant\ Water\ Pump\build\libraries\ArduinoSTL\eh_alloc.cpp.o: \
+c:\Users\ellio\Documents\Personal\Projects\hydro-9000-automatic-plant-watering\build\libraries\ArduinoSTL\eh_alloc.cpp.o: \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src\eh_alloc.cpp \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/cstdlib \
  C:\Users\ellio\Documents\Arduino\libraries\ArduinoSTL\src/basic_definitions \
