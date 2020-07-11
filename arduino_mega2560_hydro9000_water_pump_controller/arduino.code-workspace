@@ -66,7 +66,25 @@
 			"xstring": "cpp",
 			"xhash": "cpp",
 			"xutility": "cpp",
-			"unordered_map": "cpp"
+			"unordered_map": "cpp",
+			"xmemory0": "cpp",
+			"xlocmon": "cpp",
+			"xlocnum": "cpp",
+			"xloctime": "cpp",
+			"cstdint": "cpp",
+			"fstream": "cpp",
+			"system_error": "cpp",
+			"tuple": "cpp",
+			"xfacet": "cpp",
+			"xiosbase": "cpp",
+			"xlocale": "cpp",
+			"xlocbuf": "cpp",
+			"xlocinfo": "cpp",
+			"xlocmes": "cpp",
+			"xmemory": "cpp",
+			"xstddef": "cpp",
+			"xtr1common": "cpp",
+			"xtree": "cpp"
 		},
 		"cSpell.words": [
 			"SWITCHCAPVCC"

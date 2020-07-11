@@ -19,6 +19,7 @@
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+unsigned long MoistureSensor::currentMillis = 0;
 std::vector<MoistureSensor> sensors;
 std::vector<int> sensorPins = {54, 55, 56, 57, 58};
 std::vector<String> subMenuWaterPlantsItems = {"Plant #1", "Plant #2", "Plant #3", "Plant #4", "Plant #5"};
@@ -26,6 +27,14 @@ std::vector<String> subMenuHistoryItems = {"Past Day", "Past Week", "Past Month"
 std::vector<String> subMenuSettingsItems = {"Enable/Disable Pump", "Vacation Mode"};
 bool isDisplaySetup = false;
 
+enum MILLIS_FROM {
+  MILLIS = 1,
+  SECONDS = 1000,
+  MINUTES = 60000,
+  QUARTER_HOURS = 900000,
+  HOURS = 3600000,
+  DAYS = 86400000
+};
 
 const int BLUE_BUTTON_PIN = 12;
 const int RED_BUTTON_PIN = 13;
@@ -63,53 +72,60 @@ enum SCREEN {
   MENU,
   PUMP_CONTROL,
   MOISTURE_LEVELS,
-  MOISTURE_GOALS
+  MOISTURE_GOALS,
+  HISTORY
 };
 int currentScreen = SCREEN::HOME;
 
 int lastPosition = 0;
 
-#line 71 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 81 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void setup();
-#line 130 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 145 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void togglePump1();
-#line 134 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 149 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void togglePump2();
-#line 138 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 153 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void togglePump3();
-#line 142 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 157 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void togglePump4();
-#line 146 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 161 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void togglePump5();
-#line 150 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void goToMainMenu();
-#line 154 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void doEncoderPinARising();
-#line 158 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void doEncoderPinBFalling();
-#line 162 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void goToMoistureScreen();
 #line 165 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void goToMoistureGoalScreen();
+void goToMainMenu();
+#line 169 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void doEncoderPinARising();
 #line 173 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void doEncoderPinBFalling();
+#line 177 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void goToMoistureScreen();
+#line 180 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void goToMoistureGoalScreen();
+#line 183 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void goToHistoryPastHour();
+#line 191 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void loop();
-#line 294 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 347 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void readAllSensors();
-#line 301 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void doDisplaySetup();
-#line 309 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void drawHomescreen();
-#line 315 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void displayTitle(String title);
-#line 322 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void showMoistureLevels();
-#line 333 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
-void drawMoistureBar(float levelPercent, int16_t barIndex);
 #line 366 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void doDisplaySetup();
+#line 374 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void drawHomescreen();
+#line 380 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void displayTitle(String title);
+#line 387 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void showMoistureLevels();
+#line 398 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void showMoistureHistory(MILLIS_FROM durationMS, int intervalCount);
+#line 419 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+void drawMoistureBar(float levelPercent, int16_t barIndex);
+#line 460 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+int getCenterAlignPosition(int startPosition, int endPosition, int thingWidth);
+#line 465 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void showMoistureGoals();
-#line 377 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 476 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void drawMoistureGoal(float levelPercent, int16_t barIndex);
-#line 71 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+#line 81 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
 void setup() {
   Serial.begin(115200);
   Serial.println("Starting...");
@@ -117,9 +133,12 @@ void setup() {
   selectWheel = SelectWheel(SELECT_WHEEL_ENCODER_PIN_A, SELECT_WHEEL_ENCODER_PIN_B);
   pumpBox.setup();
 
+  int addressOffset = 0;
   for (int i = 0; i < sensorPins.size(); i++) {
-    MoistureSensor newSensor(sensorPins.at(i));
+    MoistureSensor newSensor(sensorPins.at(i), MoistureSensor::addressOffset * i);
     sensors.push_back(newSensor);
+    sensors.at(i).loadData();
+    sensors.at(i).writeSerial();
   }
 
   attachInterrupt(digitalPinToInterrupt(selectWheel.pinA), doEncoderPinARising, RISING);
@@ -135,7 +154,9 @@ void setup() {
   settingsMenu = SelectMenu(String("SETTINGS"), subMenuSettingsItems, display);
   mainMenu = SelectMenu(String("MENU"), display);
   
-settingsMenu.addItemAction("Set Water Levels", goToMoistureGoalScreen);
+  historyMenu.addItemAction("Past Hour", goToHistoryPastHour);
+
+  settingsMenu.addItemAction("Set Water Levels", goToMoistureGoalScreen);
 
   waterPlantsMenu.addItemAction("Plant #1", togglePump1);
   waterPlantsMenu.addItemAction("Plant #2", togglePump2);
@@ -207,12 +228,16 @@ void goToMoistureScreen() {
 void goToMoistureGoalScreen() {
   currentScreen = SCREEN::MOISTURE_GOALS;
 }
+void goToHistoryPastHour() {
+  currentScreen = SCREEN::HISTORY;
+}
 
 bool wasSelectWheelPressed = false, wasBluePressed = false, wasRedPressed = false, wasKeyUnlocked = false;
 bool isMoistureLevelsVisible = false;
 unsigned long timeoutMS = 0, isBlueLedOn = true, isMenuVisible = false;
 
 void loop() {
+  MoistureSensor::currentMillis = millis();
   readAllSensors();
   bool isRedPressed = (digitalRead(RED_BUTTON_PIN) == LOW);
   bool isBluePressed = (digitalRead(BLUE_BUTTON_PIN) == LOW);
@@ -258,6 +283,13 @@ void loop() {
       break;
     case SCREEN::MOISTURE_GOALS:
       showMoistureGoals();
+      if ((isBluePressed && !wasBluePressed)
+        || (isRedPressed && !wasRedPressed)
+        || (isSelectWheelPressed && !wasSelectWheelPressed)) {
+          currentScreen = SCREEN::MENU;
+      }
+      digitalWrite(BLUE_BUTTON_LED_PIN, (isBlueLedOn) ? HIGH : LOW);
+      digitalWrite(RED_BUTTON_LED_PIN, HIGH);
       break;
     case SCREEN::PUMP_CONTROL:
         if (isBluePressed && !wasBluePressed) {
@@ -287,7 +319,7 @@ void loop() {
           currentMenu = &(currentMenu->getSelectedSubMenu());
           currentMenu->selectedItemIndex = 0;
         } else {
-          Serial.print("Unknown selection. "+String(currentMenu->actions.size())+" "+String(currentMenu->childMenus.size()));
+          Serial.print("Unknown selection at position "+String(currentMenu->childMenus.size())+" of "+String(currentMenu->actions.size())+". ");
         }
       }
       if (currentMenu == &waterPlantsMenu) {
@@ -310,8 +342,35 @@ void loop() {
       digitalWrite(BLUE_BUTTON_LED_PIN, (isBlueLedOn) ? HIGH : LOW);
       digitalWrite(RED_BUTTON_LED_PIN, HIGH);
       break;
+    case SCREEN::HISTORY:
+      String selectedMenuItemDisplayName = currentMenu->getSelectedItemDisplayName();
+      selectedMenuItemDisplayName.toUpperCase();
+      if (selectedMenuItemDisplayName.length() > 10) {
+        displayTitle(selectedMenuItemDisplayName.substring(0, 10));
+      } else {
+        displayTitle(selectedMenuItemDisplayName);
+      }
+      if (selectedMenuItemDisplayName.indexOf("SECOND") >= 0) {
+        showMoistureHistory(MILLIS_FROM::SECONDS, 100);
+      } else if (selectedMenuItemDisplayName.indexOf("MINUTE") >= 0) {
+        showMoistureHistory(MILLIS_FROM::MINUTES, 100);
+      } else if (selectedMenuItemDisplayName.indexOf("QUARTER HOUR") >= 0) {
+        showMoistureHistory(MILLIS_FROM::QUARTER_HOURS, 100);
+      } else if (selectedMenuItemDisplayName.indexOf("HOUR") >= 0) {
+        showMoistureHistory(MILLIS_FROM::HOURS, 100);
+      } else {
+        showMoistureHistory(MILLIS_FROM::DAYS, 100);
+      }
+      if ((isBluePressed && !wasBluePressed)
+        || (isRedPressed && !wasRedPressed)
+        || (isSelectWheelPressed && !wasSelectWheelPressed)) {
+          currentScreen = SCREEN::MENU;
+      }
+      digitalWrite(BLUE_BUTTON_LED_PIN, (isBlueLedOn) ? HIGH : LOW);
+      digitalWrite(RED_BUTTON_LED_PIN, HIGH);
+      break;
     default:
-      Serial.print("Unknown SCREEN:: ");
+      Serial.print("Unknown SCREEN:: "+String(currentScreen));
   }
 
   if (currentScreen != SCREEN::OFF) {
@@ -336,7 +395,19 @@ void loop() {
 void readAllSensors() {
   //Serial.print("Reading from all sensors, length: "+String(sensors.size()));
   for (int i = 0; i < sensors.size(); i++) {
+    bool doSaveData = false;
     sensors.at(i).read();
+    if (sensors.at(i).isNextMinute()) {
+      sensors.at(i).pushLastMinuteReadings();
+      doSaveData = true;
+    }
+    if (sensors.at(i).isNextQuarterHour()) {
+      sensors.at(i).pushLastQuarterHourReadings();
+      doSaveData = true;
+    }
+    if (doSaveData) {
+      sensors.at(i).saveData();
+    }
   }
 }
 
@@ -372,6 +443,27 @@ void showMoistureLevels() {
   display.setTextColor(WHITE);
 }
 
+void showMoistureHistory(MILLIS_FROM durationMS, int intervalCount) {
+  display.setCursor(0, 20);
+  const int CHART_HEIGHT = 48;
+  
+  MoistureSensor currentSensor = sensors.at(0);
+
+  int startY = display.height();
+  int startX = display.width() - intervalCount;
+  int intervalSizeMS = durationMS / intervalCount;
+  int maxReading = currentSensor.maxReading, minReading = currentSensor.minReading;
+  int readingInterval = (maxReading - minReading) / CHART_HEIGHT;
+
+  if (true || durationMS <= MoistureSensor::HISTORY_SIZE * MILLIS_FROM::MINUTES) {
+    for (int i = 0; i < intervalCount; i++) {
+      display.drawPixel(startX + i, startY - (currentSensor.readingHistoryInMinutes[i] / readingInterval), WHITE);
+    }
+  } else {
+
+  }
+}
+
 void drawMoistureBar(float levelPercent, int16_t barIndex) {
   const int BAR_WIDTH = 23;
   const int BAR_MAX_HEIGHT = 48;
@@ -379,31 +471,44 @@ void drawMoistureBar(float levelPercent, int16_t barIndex) {
   const int BAR_SPACING = 1;
   const int START_X = 128-(BAR_SPACING + BAR_WIDTH) * 5;
   const int START_Y = 0;
+  const int CHAR_WIDTH = 6, TEXT_HEIGHT = 7, TEXT_PADDING_Y = 3;
 
   int height = std::max(float(BAR_MIN_HEIGHT), levelPercent * BAR_MAX_HEIGHT);
   int startX = barIndex * (BAR_WIDTH + BAR_SPACING) + START_X;
   int startY = display.height() - height;
-  
 
   display.fillRect(startX, startY, BAR_WIDTH, height, WHITE);
 
-  int textY, textPaddingX = 3;
-  if (height < 13) {
-    textY = fmin(startY - 10, display.height() - 10);
+  int percentage = levelPercent * 100;
+  int textY, textX;
+  int textWidth, percentCharCount;
+
+  if (percentage < 10) {
+    percentCharCount = 2;
+  } else if (percentage < 100) {
+    percentCharCount = 3;
+  } else if (percentage == 100) {
+    percentCharCount = 4;
+  }
+  textWidth = percentCharCount * CHAR_WIDTH;
+  textX = getCenterAlignPosition(startX, startX + BAR_WIDTH, textWidth);
+  textY = startY + TEXT_PADDING_Y;
+
+  if (textY + TEXT_HEIGHT + TEXT_PADDING_Y > display.height()) {
+    textY = startY - TEXT_PADDING_Y - TEXT_HEIGHT;
     display.setTextColor(WHITE);
   } else {
-    textY = startY + 3;
     display.setTextColor(BLACK);
   }
-  int percentage = levelPercent * 100;
-  if (percentage < 10) {
-    textPaddingX += 3;
-  }
-  display.setCursor(startX+textPaddingX, textY);
+  display.setCursor(textX, textY);
   display.setTextSize(1);
   display.println(String(percentage)+"%");
 }
 
+int getCenterAlignPosition(int startPosition, int endPosition, int thingWidth) {
+  int width = endPosition - startPosition + 1;
+  return (width - thingWidth) / 2 + startPosition;
+}
 
 void showMoistureGoals() {
   displayTitle("MOISTURE");

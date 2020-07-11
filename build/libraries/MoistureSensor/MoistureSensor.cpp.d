@@ -11,4 +11,5 @@ c:\Users\ellio\Documents\Personal\Projects\hydro-9000-automatic-plant-watering\b
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBAPI.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\mega/pins_arduino.h \
- C:\Users\ellio\Documents\Arduino\libraries\MoistureSensor\MoistureSensor.h
+ C:\Users\ellio\Documents\Arduino\libraries\MoistureSensor\MoistureSensor.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src/EEPROM.h

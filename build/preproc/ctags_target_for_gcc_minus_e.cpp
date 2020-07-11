@@ -19,6 +19,7 @@
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(128 /* OLED display width, in pixels*/, 64 /* OLED display height, in pixels*/, &Wire, -1);
+unsigned long MoistureSensor::currentMillis = 0;
 std::vector<MoistureSensor> sensors;
 std::vector<int> sensorPins = {54, 55, 56, 57, 58};
 std::vector<String> subMenuWaterPlantsItems = {"Plant #1", "Plant #2", "Plant #3", "Plant #4", "Plant #5"};
@@ -26,6 +27,14 @@ std::vector<String> subMenuHistoryItems = {"Past Day", "Past Week", "Past Month"
 std::vector<String> subMenuSettingsItems = {"Enable/Disable Pump", "Vacation Mode"};
 bool isDisplaySetup = false;
 
+enum MILLIS_FROM {
+  MILLIS = 1,
+  SECONDS = 1000,
+  MINUTES = 60000,
+  QUARTER_HOURS = 900000,
+  HOURS = 3600000,
+  DAYS = 86400000
+};
 
 const int BLUE_BUTTON_PIN = 12;
 const int RED_BUTTON_PIN = 13;
@@ -63,7 +72,8 @@ enum SCREEN {
   MENU,
   PUMP_CONTROL,
   MOISTURE_LEVELS,
-  MOISTURE_GOALS
+  MOISTURE_GOALS,
+  HISTORY
 };
 int currentScreen = SCREEN::HOME;
 
@@ -76,9 +86,12 @@ void setup() {
   selectWheel = SelectWheel(SELECT_WHEEL_ENCODER_PIN_A, SELECT_WHEEL_ENCODER_PIN_B);
   pumpBox.setup();
 
+  int addressOffset = 0;
   for (int i = 0; i < sensorPins.size(); i++) {
-    MoistureSensor newSensor(sensorPins.at(i));
+    MoistureSensor newSensor(sensorPins.at(i), MoistureSensor::addressOffset * i);
     sensors.push_back(newSensor);
+    sensors.at(i).loadData();
+    sensors.at(i).writeSerial();
   }
 
   attachInterrupt(((selectWheel.pinA) == 2 ? 0 : ((selectWheel.pinA) == 3 ? 1 : ((selectWheel.pinA) >= 18 && (selectWheel.pinA) <= 21 ? 23 - (selectWheel.pinA) : -1))), doEncoderPinARising, 3);
@@ -94,7 +107,9 @@ void setup() {
   settingsMenu = SelectMenu(String("SETTINGS"), subMenuSettingsItems, display);
   mainMenu = SelectMenu(String("MENU"), display);
 
-settingsMenu.addItemAction("Set Water Levels", goToMoistureGoalScreen);
+  historyMenu.addItemAction("Past Hour", goToHistoryPastHour);
+
+  settingsMenu.addItemAction("Set Water Levels", goToMoistureGoalScreen);
 
   waterPlantsMenu.addItemAction("Plant #1", togglePump1);
   waterPlantsMenu.addItemAction("Plant #2", togglePump2);
@@ -166,12 +181,16 @@ void goToMoistureScreen() {
 void goToMoistureGoalScreen() {
   currentScreen = SCREEN::MOISTURE_GOALS;
 }
+void goToHistoryPastHour() {
+  currentScreen = SCREEN::HISTORY;
+}
 
 bool wasSelectWheelPressed = false, wasBluePressed = false, wasRedPressed = false, wasKeyUnlocked = false;
 bool isMoistureLevelsVisible = false;
 unsigned long timeoutMS = 0, isBlueLedOn = true, isMenuVisible = false;
 
 void loop() {
+  MoistureSensor::currentMillis = millis();
   readAllSensors();
   bool isRedPressed = (digitalRead(RED_BUTTON_PIN) == 0x0);
   bool isBluePressed = (digitalRead(BLUE_BUTTON_PIN) == 0x0);
@@ -217,6 +236,13 @@ void loop() {
       break;
     case SCREEN::MOISTURE_GOALS:
       showMoistureGoals();
+      if ((isBluePressed && !wasBluePressed)
+        || (isRedPressed && !wasRedPressed)
+        || (isSelectWheelPressed && !wasSelectWheelPressed)) {
+          currentScreen = SCREEN::MENU;
+      }
+      digitalWrite(BLUE_BUTTON_LED_PIN, (isBlueLedOn) ? 0x1 : 0x0);
+      digitalWrite(RED_BUTTON_LED_PIN, 0x1);
       break;
     case SCREEN::PUMP_CONTROL:
         if (isBluePressed && !wasBluePressed) {
@@ -246,7 +272,7 @@ void loop() {
           currentMenu = &(currentMenu->getSelectedSubMenu());
           currentMenu->selectedItemIndex = 0;
         } else {
-          Serial.print("Unknown selection. "+String(currentMenu->actions.size())+" "+String(currentMenu->childMenus.size()));
+          Serial.print("Unknown selection at position "+String(currentMenu->childMenus.size())+" of "+String(currentMenu->actions.size())+". ");
         }
       }
       if (currentMenu == &waterPlantsMenu) {
@@ -269,8 +295,35 @@ void loop() {
       digitalWrite(BLUE_BUTTON_LED_PIN, (isBlueLedOn) ? 0x1 : 0x0);
       digitalWrite(RED_BUTTON_LED_PIN, 0x1);
       break;
+    case SCREEN::HISTORY:
+      String selectedMenuItemDisplayName = currentMenu->getSelectedItemDisplayName();
+      selectedMenuItemDisplayName.toUpperCase();
+      if (selectedMenuItemDisplayName.length() > 10) {
+        displayTitle(selectedMenuItemDisplayName.substring(0, 10));
+      } else {
+        displayTitle(selectedMenuItemDisplayName);
+      }
+      if (selectedMenuItemDisplayName.indexOf("SECOND") >= 0) {
+        showMoistureHistory(MILLIS_FROM::SECONDS, 100);
+      } else if (selectedMenuItemDisplayName.indexOf("MINUTE") >= 0) {
+        showMoistureHistory(MILLIS_FROM::MINUTES, 100);
+      } else if (selectedMenuItemDisplayName.indexOf("QUARTER HOUR") >= 0) {
+        showMoistureHistory(MILLIS_FROM::QUARTER_HOURS, 100);
+      } else if (selectedMenuItemDisplayName.indexOf("HOUR") >= 0) {
+        showMoistureHistory(MILLIS_FROM::HOURS, 100);
+      } else {
+        showMoistureHistory(MILLIS_FROM::DAYS, 100);
+      }
+      if ((isBluePressed && !wasBluePressed)
+        || (isRedPressed && !wasRedPressed)
+        || (isSelectWheelPressed && !wasSelectWheelPressed)) {
+          currentScreen = SCREEN::MENU;
+      }
+      digitalWrite(BLUE_BUTTON_LED_PIN, (isBlueLedOn) ? 0x1 : 0x0);
+      digitalWrite(RED_BUTTON_LED_PIN, 0x1);
+      break;
     default:
-      Serial.print("Unknown SCREEN:: ");
+      Serial.print("Unknown SCREEN:: "+String(currentScreen));
   }
 
   if (currentScreen != SCREEN::OFF) {
@@ -295,20 +348,32 @@ void loop() {
 void readAllSensors() {
   //Serial.print("Reading from all sensors, length: "+String(sensors.size()));
   for (int i = 0; i < sensors.size(); i++) {
+    bool doSaveData = false;
     sensors.at(i).read();
+    if (sensors.at(i).isNextMinute()) {
+      sensors.at(i).pushLastMinuteReadings();
+      doSaveData = true;
+    }
+    if (sensors.at(i).isNextQuarterHour()) {
+      sensors.at(i).pushLastQuarterHourReadings();
+      doSaveData = true;
+    }
+    if (doSaveData) {
+      sensors.at(i).saveData();
+    }
   }
 }
 
 void doDisplaySetup() {
   if(!display.begin(0x02 /*|< Gen. display voltage from 3.3V*/, 0x3C)) { // Address 0x3D for 128x64
     Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 303 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino" 3
+# 368 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino" 3
                   (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 303 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+# 368 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
                   "SSD1306 allocation failed"
-# 303 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino" 3
+# 368 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino" 3
                   ); &__c[0];}))
-# 303 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
+# 368 "c:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller\\arduino_mega2560_hydro9000_water_pump_controller.ino"
                   )));
     for(;;);
   }
@@ -339,6 +404,27 @@ void showMoistureLevels() {
   display.setTextColor(1 /*|< Draw 'on' pixels*/ /*|< Draw 'on' pixels*/);
 }
 
+void showMoistureHistory(MILLIS_FROM durationMS, int intervalCount) {
+  display.setCursor(0, 20);
+  const int CHART_HEIGHT = 48;
+
+  MoistureSensor currentSensor = sensors.at(0);
+
+  int startY = display.height();
+  int startX = display.width() - intervalCount;
+  int intervalSizeMS = durationMS / intervalCount;
+  int maxReading = currentSensor.maxReading, minReading = currentSensor.minReading;
+  int readingInterval = (maxReading - minReading) / CHART_HEIGHT;
+
+  if (true || durationMS <= MoistureSensor::HISTORY_SIZE * MILLIS_FROM::MINUTES) {
+    for (int i = 0; i < intervalCount; i++) {
+      display.drawPixel(startX + i, startY - (currentSensor.readingHistoryInMinutes[i] / readingInterval), 1 /*|< Draw 'on' pixels*/ /*|< Draw 'on' pixels*/);
+    }
+  } else {
+
+  }
+}
+
 void drawMoistureBar(float levelPercent, int16_t barIndex) {
   const int BAR_WIDTH = 23;
   const int BAR_MAX_HEIGHT = 48;
@@ -346,31 +432,44 @@ void drawMoistureBar(float levelPercent, int16_t barIndex) {
   const int BAR_SPACING = 1;
   const int START_X = 128-(BAR_SPACING + BAR_WIDTH) * 5;
   const int START_Y = 0;
+  const int CHAR_WIDTH = 6, TEXT_HEIGHT = 7, TEXT_PADDING_Y = 3;
 
   int height = std::max(float(BAR_MIN_HEIGHT), levelPercent * BAR_MAX_HEIGHT);
   int startX = barIndex * (BAR_WIDTH + BAR_SPACING) + START_X;
   int startY = display.height() - height;
 
-
   display.fillRect(startX, startY, BAR_WIDTH, height, 1 /*|< Draw 'on' pixels*/ /*|< Draw 'on' pixels*/);
 
-  int textY, textPaddingX = 3;
-  if (height < 13) {
-    textY = fmin(startY - 10, display.height() - 10);
+  int percentage = levelPercent * 100;
+  int textY, textX;
+  int textWidth, percentCharCount;
+
+  if (percentage < 10) {
+    percentCharCount = 2;
+  } else if (percentage < 100) {
+    percentCharCount = 3;
+  } else if (percentage == 100) {
+    percentCharCount = 4;
+  }
+  textWidth = percentCharCount * CHAR_WIDTH;
+  textX = getCenterAlignPosition(startX, startX + BAR_WIDTH, textWidth);
+  textY = startY + TEXT_PADDING_Y;
+
+  if (textY + TEXT_HEIGHT + TEXT_PADDING_Y > display.height()) {
+    textY = startY - TEXT_PADDING_Y - TEXT_HEIGHT;
     display.setTextColor(1 /*|< Draw 'on' pixels*/ /*|< Draw 'on' pixels*/);
   } else {
-    textY = startY + 3;
     display.setTextColor(0 /*|< Draw 'off' pixels*/ /*|< Draw 'off' pixels*/);
   }
-  int percentage = levelPercent * 100;
-  if (percentage < 10) {
-    textPaddingX += 3;
-  }
-  display.setCursor(startX+textPaddingX, textY);
+  display.setCursor(textX, textY);
   display.setTextSize(1);
   display.println(String(percentage)+"%");
 }
 
+int getCenterAlignPosition(int startPosition, int endPosition, int thingWidth) {
+  int width = endPosition - startPosition + 1;
+  return (width - thingWidth) / 2 + startPosition;
+}
 
 void showMoistureGoals() {
   displayTitle("MOISTURE");
