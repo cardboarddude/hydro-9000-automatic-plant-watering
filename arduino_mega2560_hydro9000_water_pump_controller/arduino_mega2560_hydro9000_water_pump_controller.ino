@@ -6,19 +6,22 @@
 #include <vector>
 #include <math.h> 
 #include <EEPROM.h>
-#include <MoistureSensor.h>
-#include <SelectWheel.h>
-#include <SelectMenu.h>
-#include <WaterPump.h>
-#include <WaterPumpBox.h>
-#include <Assets.h>
-#include <Hydro9000.h>
+#include "Screen.h"
+// #include <MoistureSensor.h>
+// #include <SelectWheel.h>
+// #include <SelectMenu.h>
+// #include <WaterPump.h>
+// #include <WaterPumpBox.h>
+// #include <Assets.h>
+// #include <Hydro9000.h>
+// #include <ControlPanel.h>
+// #include <Button.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+Adafruit_SSD1306 Screen::display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // sensorPins, pumpPins, and plantNames should be the same size()
 std::vector<int> sensorPins = {54, 55, 56, 57, 58};
@@ -94,6 +97,24 @@ void setup() {
   Serial.println("Starting...");
   
   selectWheel = SelectWheel(SELECT_WHEEL_ENCODER_PIN_A, SELECT_WHEEL_ENCODER_PIN_B);
+  hydro.addSelectWheel(selectWheel);
+  ControlPanel controlPanel();
+
+  /* Add buttons to control panel */
+  Button blueButton(BLUE_BUTTON_PIN, BLUE_BUTTON_LED_PIN);
+  Button redButton(RED_BUTTON_PIN, RED_BUTTON_LED_PIN);
+  Button selectWheelButton(SELECT_WHEEL_BUTTON_PIN);
+  blueButton.stateWhenButtonPressed = LOW;
+  redButton.stateWhenButtonPressed = LOW;
+  selectWheelButton.stateWhenButtonPressed = LOW;
+  controlPanel.addButton("blue_button", blueButton);
+  controlPanel.addButton("red_button", redButton);
+  controlPanel.addButton("select_wheel_button", selectWheelButton);
+  controlPanel.addButton("emergency_stop_button", Button(EMERGENCY_STOP_BUTTON_PIN));
+  controlPanel.addButton("key_switch", Button(KEY_SWITCH_PIN));
+
+
+  hydro.addControlPanel(controlPanel);
   hydro.setup();
   // pumpBox.setup();
 
@@ -141,15 +162,6 @@ void setup() {
   mainMenu.addItemSubMenu("History", historyMenu);
   mainMenu.addItemSubMenu("Settings", settingsMenu);
   currentMenu = &mainMenu;
-
-  pinMode(EMERGENCY_STOP_BUTTON_PIN, INPUT);
-  pinMode(BLUE_BUTTON_PIN, INPUT);
-  pinMode(RED_BUTTON_PIN, INPUT); 
-  pinMode(KEY_SWITCH_PIN, INPUT); 
-  pinMode(SELECT_WHEEL_BUTTON_PIN, INPUT);
-
-  pinMode(BLUE_BUTTON_LED_PIN, OUTPUT);
-  pinMode(RED_BUTTON_LED_PIN, OUTPUT);
 
   lastPosition = selectWheel.getClockwiseTurns();
   currentScreen = SCREEN::OFF;
@@ -202,15 +214,8 @@ bool isMoistureLevelsVisible = false;
 unsigned long timeoutMS = 0, isBlueLedOn = true, isMenuVisible = false;
 
 void loop() {
-  Hydro9000::currentMillis = millis();
   hydro.update();
-
-  bool isRedPressed = (digitalRead(RED_BUTTON_PIN) == LOW);
-  bool isBluePressed = (digitalRead(BLUE_BUTTON_PIN) == LOW);
-  bool isKeyUnlocked = (digitalRead(KEY_SWITCH_PIN) == HIGH);
-  bool isSelectWheelPressed = (digitalRead(SELECT_WHEEL_BUTTON_PIN) == LOW);
-  bool isEmergencyStopPressed = (digitalRead(EMERGENCY_STOP_BUTTON_PIN) == HIGH);
-
+  
   if (!isKeyUnlocked && wasKeyUnlocked) {
     currentScreen = SCREEN::OFF;
   } else if (isKeyUnlocked) {
@@ -259,10 +264,10 @@ void loop() {
       break;
     case SCREEN::PUMP_CONTROL:
         if (isBluePressed && !wasBluePressed) {
-          hydro.doWateringForOnlyOnePlant();
+          hydro.startSelectedPump();
           if (pumpBox.isPumpRunning()) {
             pumpBox.stopAllPumps();
-          } else if (currentMenu->isActionSelected()) {
+          if (currentMenu->isActionSelected()) {
             (currentMenu->getSelectedAction())();
           }
         }

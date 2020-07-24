@@ -1,12 +1,20 @@
 {
 	"folders": [
 		{
-			"name":"Hydro9000",
-			"path": "."
+			"name": "Project",
+			"path": "C:\\Users\\ellio\\Documents\\Personal\\Projects\\hydro-9000-automatic-plant-watering\\arduino_mega2560_hydro9000_water_pump_controller"
 		},
 		{
 			"name": "Libraries",
 			"path": "C:\\Users\\ellio\\Documents\\Arduino\\libraries"
+		},
+		{
+			"name": "200718-122110-megaatmega2560",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\200718-122110-megaatmega2560"
+		},
+		{
+			"name": "Hydro9000",
+			"path": "Hydro9000"
 		}
 	],
 	"settings": {
@@ -84,10 +92,15 @@
 			"xmemory": "cpp",
 			"xstddef": "cpp",
 			"xtr1common": "cpp",
-			"xtree": "cpp"
-		},
-		"cSpell.words": [
-			"SWITCHCAPVCC"
-		]
+			"xtree": "cpp",
+			"*.rh": "cpp",
+			"array": "cpp",
+			"atomic": "cpp",
+			"clocale": "cpp",
+			"cstdarg": "cpp",
+			"random": "cpp",
+			"*.tcc": "cpp",
+			"cinttypes": "cpp"
+		}
 	}
 }
