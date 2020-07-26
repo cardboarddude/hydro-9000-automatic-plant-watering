@@ -1,5 +1,0 @@
-{
-    "sketch": "arduino_mega2560_hydro9000_water_pump_controller.ino",
-    "board": "arduino:avr:mega",
-    "configuration": "cpu=atmega2560"
-}
