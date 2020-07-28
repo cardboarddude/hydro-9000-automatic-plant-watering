@@ -25,8 +25,8 @@ class Hydro9000 {
 
 		Hydro9000();
 		void update();
-		void addPlantController(PlantController controller);
-		void addControlPanel(ControlPanel controlPanel);
+		void addPlantController(PlantController& controller);
+		void addControlPanel(ControlPanel& controlPanel);
 		void setup();
 		void doEmergencyStop();
 		std::vector<float> getGoals();

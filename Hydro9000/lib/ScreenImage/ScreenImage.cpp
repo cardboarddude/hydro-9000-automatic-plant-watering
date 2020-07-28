@@ -6,20 +6,20 @@
 #include "Adafruit_SSD1306.h"
 
 ScreenImage::ScreenImage() : Screen::Screen() {}
-ScreenImage::ScreenImage(String title, const unsigned char* imageBitmap, int height, int width) : Screen(title) {
+ScreenImage::ScreenImage(String title, const unsigned char* imageBitmap, int width, int height) : Screen(title) {
     this->imageContent = imageBitmap;
     this->imageHeight = height;
     this->imageWidth = width;
 }
-ScreenImage::ScreenImage(DisplayText title, const unsigned char* imageBitmap, int height, int width) : Screen(title) {
+ScreenImage::ScreenImage(DisplayText& title, const unsigned char* imageBitmap, int width, int height) : Screen(title) {
     this->imageContent = imageBitmap;
     this->imageHeight = height;
     this->imageWidth = width;
 }
 void ScreenImage::doDisplay() {
     Point imageTopLeftPoint = this->getImageTopLeftPoint();
-
-    Screen::display.drawBitmap(imageTopLeftPoint.x, imageTopLeftPoint.y, this->imageContent,
+    
+    Screen::display->drawBitmap(imageTopLeftPoint.x, imageTopLeftPoint.y, this->imageContent,
         this->imageWidth, this->imageHeight, WHITE);
     Screen::doDisplay();
 }

@@ -9,11 +9,12 @@
 class PlantController {
 	public:
         PlantController();
-        PlantController(MoistureSensor sensor, WaterPump pump);
+        PlantController(MoistureSensor& sensor, WaterPump& pump);
         void setup();
         void update();
         void stopPump();
         float getGoal();
+        float getCurrentPercentage();
         String name;
         String displayName;
         

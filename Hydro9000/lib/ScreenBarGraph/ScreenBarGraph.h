@@ -14,18 +14,19 @@ class ScreenBarGraph : public Screen {
         ScreenBarGraph();
         ScreenBarGraph(String title);
         virtual void doDisplay();
+        virtual void clear();
         void addBar(double value, String label);
 
-        void doDisplayBar(Point position[2]);
-        void doDisplayLabel(int labelIndex, Point barPosition[2]);
-        DisplayText getLabel(int labelIndex, Point barPosition[2]);
-        Point* getBarPosition(int index, int barWidth = -1);
+        void doDisplayBar(std::vector<Point>& position);
+        void doDisplayLabel(int labelIndex, std::vector<Point>& barPosition);
+        DisplayText getLabel(int labelIndex, std::vector<Point>& barPosition);
+        std::vector<Point> getBarPosition(int index, int barWidth = -1);
         int getBarHeight(int index);
         int getBarWidth();
 
     private: 
-        std::vector<double> values;
         std::vector<String> labels;
+        std::vector<double> values;
 };
 
 #endif

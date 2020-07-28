@@ -4,7 +4,7 @@
 
 PlantController::PlantController() {
 }
-PlantController::PlantController(MoistureSensor sensor, WaterPump pump) {
+PlantController::PlantController(MoistureSensor& sensor, WaterPump& pump) {
     this->sensor = sensor;
     this->pump = pump;
 }
@@ -29,4 +29,7 @@ void PlantController::stopPump() {
 }
 float PlantController::getGoal() {
     return this->sensor.getGoalPercentage();
+}
+float PlantController::getCurrentPercentage() {
+    return this->sensor.getMoistureLevel();
 }

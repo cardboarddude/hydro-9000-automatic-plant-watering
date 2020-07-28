@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <SPI.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <Wire.h>
@@ -21,14 +22,14 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-Adafruit_SSD1306 Screen::display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-Adafruit_SSD1306 DisplayText::display = Screen::display;
+Adafruit_SSD1306* Screen::display = new Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+bool Screen::isSetup = false;
+Adafruit_SSD1306* DisplayText::display = Screen::display;
 unsigned long Hydro9000::currentMillis = 0;
 unsigned long ControlPanel::currentMillis = 0;
 unsigned long MoistureSensor::currentMillis = 0;
 unsigned long Button::currentMillis = 0;
 
-bool Screen::isSetup = false;
 // sensorPins, pumpPins, and plantNames should be the same size()
 std::vector<int> sensorPins = {54, 55, 56, 57, 58};
 std::vector<int> pumpPins = {30, 34, 38, 42, 46};
@@ -43,10 +44,9 @@ enum MILLIS_FROM {
 };
 
 Hydro9000 hydro;
-std::vector<String> subMenuWaterPlantsItems = {"Plant #1", "Plant #2", "Plant #3", "Plant #4", "Plant #5"};
-std::vector<String> subMenuHistoryItems = {"Past Day", "Past Week", "Past Month"};
-std::vector<String> subMenuSettingsItems = {"Enable/Disable Pump", "Vacation Mode"};
-bool isDisplaySetup = false;
+// std::vector<String> subMenuWaterPlantsItems = {"Plant #1", "Plant #2", "Plant #3", "Plant #4", "Plant #5"};
+// std::vector<String> subMenuHistoryItems = {"Past Day", "Past Week", "Past Month"};
+// std::vector<String> subMenuSettingsItems = {"Enable/Disable Pump", "Vacation Mode"};
 
 const int BLUE_BUTTON_PIN = 12;
 const int RED_BUTTON_PIN = 13;
@@ -65,10 +65,10 @@ const int SCROLLING_SPEED = 2; // [0, n] where 0 is the fastest and n is the slo
 const int BLUE_LED_BLINK_INTERVAL_MS = 575;
 
 SelectWheel selectWheel;
-// volatile int iterationsSinceLastClick = 0;
-// volatile bool isSelectWheelClicked = false, isSelectWheelDoubleClicked = false;
-SelectMenu mainMenu, waterLevelsMenu(), waterPlantsMenu(), historyMenu(), settingsMenu();
-SelectMenu* currentMenu;
+// // volatile int iterationsSinceLastClick = 0;
+// // volatile bool isSelectWheelClicked = false, isSelectWheelDoubleClicked = false;
+// // SelectMenu mainMenu, waterLevelsMenu(), waterPlantsMenu(), historyMenu(), settingsMenu();
+// // SelectMenu* currentMenu;
 
 void doEncoderPinARising() {
   selectWheel.readPinB();
@@ -78,51 +78,55 @@ void doEncoderPinBFalling() {
   selectWheel.readPinA();
   selectWheel.setPinBFalling();
 }
-// void goToMoistureScreen() {
-//   //currentScreen = SCREEN::MOISTURE_LEVELS;
-// }
-// void goToMoistureGoalScreen() {
-//   //currentScreen = SCREEN::MOISTURE_GOALS;
-// }
-// void goToHistoryPastHour() {
-//   // currentScreen = SCREEN::HISTORY;
-// }
+// // void goToMoistureScreen() {
+// //   //currentScreen = SCREEN::MOISTURE_LEVELS;
+// // }
+// // void goToMoistureGoalScreen() {
+// //   //currentScreen = SCREEN::MOISTURE_GOALS;
+// // }
+// // void goToHistoryPastHour() {
+// //   // currentScreen = SCREEN::HISTORY;
+// // }
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Starting...");
-  
+            
   Hydro9000::setCurrentMillis(0);
   for (unsigned int i = 0; i < pumpPins.size(); i++) {
-    PlantController plant(
-      MoistureSensor(sensorPins[i], MoistureSensor::addressOffset * i), 
-      WaterPump(pumpPins[i])
-    );
+    MoistureSensor sensor(sensorPins[i], MoistureSensor::addressOffset * i);
+    WaterPump pump(pumpPins[i]);
+
+    PlantController plant(sensor, pump);
     plant.name = "plant_"+String(i);
     plant.displayName = plantNames.at(i);
+
     hydro.addPlantController(plant);
   }
   
-  selectWheel = SelectWheel(SELECT_WHEEL_ENCODER_PIN_A, SELECT_WHEEL_ENCODER_PIN_B);
   ControlPanel controlPanel;
+
+  selectWheel = SelectWheel(SELECT_WHEEL_ENCODER_PIN_A, SELECT_WHEEL_ENCODER_PIN_B);
+  controlPanel.addSelectWheel(selectWheel);
 
   /* Add buttons to control panel */
   Button blueButton(BLUE_BUTTON_PIN, BLUE_BUTTON_LED_PIN);
   Button redButton(RED_BUTTON_PIN, RED_BUTTON_LED_PIN);
   Button selectWheelButton(SELECT_WHEEL_BUTTON_PIN);
+  Button emergencyStopButton(EMERGENCY_STOP_BUTTON_PIN);
+  Button keySwitch(KEY_SWITCH_PIN);
   blueButton.stateWhenButtonPressed = LOW;
   redButton.stateWhenButtonPressed = LOW;
   selectWheelButton.stateWhenButtonPressed = LOW;
-  controlPanel.addSelectWheel(selectWheel);
-  controlPanel.addButton(Button::Name::BLUE, blueButton);
-  controlPanel.addButton(Button::Name::RED, redButton);
-  controlPanel.addButton(Button::Name::SELECT_WHEEL, selectWheelButton);
-  controlPanel.addButton(Button::Name::EMERGENCY_STOP, Button(EMERGENCY_STOP_BUTTON_PIN));
-  controlPanel.addButton(Button::Name::KEY_SWITCH, Button(KEY_SWITCH_PIN));
+  controlPanel.addButton(ControlPanel::ButtonName::BLUE, blueButton);
+  controlPanel.addButton(ControlPanel::ButtonName::RED, redButton);
+  controlPanel.addButton(ControlPanel::ButtonName::SELECT_WHEEL, selectWheelButton);
+  controlPanel.addButton(ControlPanel::ButtonName::EMERGENCY_STOP, emergencyStopButton);
+  controlPanel.addButton(ControlPanel::ButtonName::KEY_SWITCH, keySwitch);
   
-
   hydro.addControlPanel(controlPanel);
   hydro.setup();
+  Serial.println("Hydro900 setup complete");
 
   attachInterrupt(digitalPinToInterrupt(selectWheel.pinA), doEncoderPinARising, RISING);
   attachInterrupt(digitalPinToInterrupt(selectWheel.pinB), doEncoderPinBFalling, FALLING);
@@ -135,7 +139,7 @@ void setup() {
   // waterPlantsMenu = SelectMenu(String("RUN PUMPS"), Screen::display);
   // historyMenu = SelectMenu(String("HISTORY"), subMenuHistoryItems, Screen::display);
   // settingsMenu = SelectMenu(String("SETTINGS"), subMenuSettingsItems, Screen::display);
-  mainMenu = SelectMenu(String("MENU"), Screen::display);
+  // mainMenu = SelectMenu(String("MENU"), Screen::display);
   
   // historyMenu.addItemAction("Past Hour", goToHistoryPastHour);
 
@@ -170,8 +174,9 @@ void setup() {
 // unsigned long timeoutMS = 0, isBlueLedOn = true, isMenuVisible = false;
 
 void loop() {
+  Serial.println("updating");
   hydro.update();
-
+  delay(500);
   // switch (currentScreen) {
   //   case SCREEN::OFF:
   //     isDisplaySetup = false;

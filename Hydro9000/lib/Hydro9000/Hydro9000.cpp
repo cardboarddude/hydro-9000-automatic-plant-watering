@@ -6,10 +6,10 @@
 
 Hydro9000::Hydro9000() {
 }
-void Hydro9000::addPlantController(PlantController controller) {
+void Hydro9000::addPlantController(PlantController& controller) {
     this->plantControllers.push_back(controller);
 }
-void Hydro9000::addControlPanel(ControlPanel controlPanel) {
+void Hydro9000::addControlPanel(ControlPanel& controlPanel) {
     this->controlPanel = controlPanel;
 }
 void Hydro9000::setup() {
@@ -21,10 +21,13 @@ void Hydro9000::setup() {
 }
 void Hydro9000::update() {
     Hydro9000::setCurrentMillis(millis());
+    std::vector<double> data;
     for (unsigned int i = 0; i < this->plantControllers.size(); i++) {
         this->plantControllers.at(i).update();
+        Serial.print(this->plantControllers.at(i).getCurrentPercentage());Serial.print(" ");
+        data.push_back(this->plantControllers.at(i).getCurrentPercentage());
     }
-    this->controlPanel.update();
+    this->controlPanel.update(data);
 
     if (this->controlPanel.isEmergency()) {
         this->doEmergencyStop();

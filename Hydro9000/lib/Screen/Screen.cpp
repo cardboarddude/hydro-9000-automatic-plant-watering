@@ -7,10 +7,10 @@ Screen::Screen() {
 Screen::Screen(String title) {
     this->addTitle(title);
 }
-Screen::Screen(DisplayText title) {
+Screen::Screen(DisplayText& title) {
     this->title = title;
 }
-void Screen::addTitle(DisplayText title) {
+void Screen::addTitle(DisplayText& title) {
     title.text.toUpperCase();
     this->title = title;
 }
@@ -24,5 +24,8 @@ void Screen::doDisplay() {
     if (this->title.text != NULL) {
         this->title.doDisplay();
     }
-    Screen::display.display();
+    Screen::display->display();
+}
+void Screen::clear() {
+    Screen::display->clearDisplay();
 }

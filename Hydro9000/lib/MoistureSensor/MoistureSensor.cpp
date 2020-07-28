@@ -110,7 +110,7 @@ void MoistureSensor::printArray(short arr[], int size) {
 	String out = "[ ";
 	for (int i = 0; i < size; i++) {
 		out += arr[i];
-		if (i + 1 == size) {
+		if (i + 1 >= size) {
 			out += "]";
 		} else {
 			out += ", ";

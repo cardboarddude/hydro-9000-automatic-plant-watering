@@ -9,10 +9,11 @@ DisplayText::DisplayText(String text, int startX, int startY, int endX, int endY
     this->endY = endY;
 }
 void DisplayText::doDisplay() {
-    DisplayText::display.setTextSize(this->fontSize);
+    DisplayText::display->setTextSize(this->fontSize);
     Point point = this->getCursorPoint();
-    DisplayText::display.setCursor(point.x, point.y);
-    DisplayText::display.setTextColor(this->fontColor);
+    DisplayText::display->setCursor(point.x, point.y);
+    DisplayText::display->setTextColor(this->fontColor);
+    DisplayText::display->print(this->text);
 }
 Point DisplayText::getCursorPoint() {
     Point point;
@@ -40,8 +41,7 @@ Point DisplayText::getCenterAlignedCursorPoint() {
 Point DisplayText::getHorizontalCenterAlignedCursorPoint() {
     Point point(this->startX, this->startY + this->topBottomPadding);
 
-    point.x += (this->getWidth() / 2) + ((this->endX - this->startX) / 2);
-
+    point.x += ((this->endX - this->startX) / 2) - (this->getWidth() / 2);
     return point;
 }
 Point DisplayText::getVerticalCenterAlignedCursorPoint() {

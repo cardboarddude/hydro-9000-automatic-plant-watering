@@ -7,8 +7,8 @@ class ScreenImage : public Screen {
 	public:
 
         ScreenImage();
-        ScreenImage(String title, const unsigned char* imageBitmap, int height, int width);
-        ScreenImage(DisplayText title, const unsigned char* imageBitmap, int height, int width);
+        ScreenImage(String title, const unsigned char* imageBitmap, int width, int height);
+        ScreenImage(DisplayText& title, const unsigned char* imageBitmap, int width, int height);
         virtual void doDisplay();
         Point getImageTopLeftPoint();
     private: 

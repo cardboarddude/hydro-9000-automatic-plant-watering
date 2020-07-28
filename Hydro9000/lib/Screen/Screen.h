@@ -2,11 +2,14 @@
 #define Screen_h
 
 #include "Arduino.h"
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>
+#include <Wire.h>
 #include "../DisplayText/DisplayText.h"
 
 class Screen {
 	public:
-        static Adafruit_SSD1306 display;
+        static Adafruit_SSD1306* display;
         static bool isSetup;
 
         int contentAreaStartX = 0, contentAreaStartY = 21;
@@ -15,20 +18,24 @@ class Screen {
         
         Screen();
         Screen(String title);
-        Screen(DisplayText title);
+        Screen(DisplayText& title);
         virtual void doDisplay();
+        virtual void clear();
         void addTitle(String title);
-        void addTitle(DisplayText title);
+        void addTitle(DisplayText& title);
         static void setup()  {
-            if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+            // Address 0x3D for 128x64
+            Screen::isSetup = display->begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
+            if(!Screen::isSetup) {
                 Serial.println(F("SSD1306 allocation failed"));
-                for(;;);
+            } else {
+                Screen::display->clearDisplay();
             }
-            Screen::isSetup = true;
         }
         static void turnOffDisplay() {
-            Screen::display.clearDisplay();
-            Screen::display.display();
+            Screen::display->clearDisplay();
+            Screen::display->display();
         }
     protected:
         DisplayText title;

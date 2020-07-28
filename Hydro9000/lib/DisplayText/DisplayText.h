@@ -6,7 +6,7 @@
 
 class DisplayText {
     public:
-        static Adafruit_SSD1306 display;
+        static Adafruit_SSD1306* display;
 
         String text;
         int fontSize = 1, fontColor = WHITE, topBottomPadding = 0;

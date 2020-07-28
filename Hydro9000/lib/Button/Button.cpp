@@ -2,15 +2,16 @@
 #include "Button.h"
 
 Button::Button() {}
+Button::Button(int buttonPin) {
+    this->buttonPin = buttonPin;
+    pinMode(this->buttonPin, INPUT);
+}
 Button::Button(int buttonPin, int ledPin) {
     this->buttonPin = buttonPin;
     pinMode(this->buttonPin, INPUT);
-
-    this->hasLed = (ledPin != -1);
-    if (this->hasLed) {
-        this->ledPin = ledPin;
-        pinMode(this->ledPin, OUTPUT);
-    }
+    this->hasLed = true;
+    this->ledPin = ledPin;
+    pinMode(this->ledPin, OUTPUT);
 }
 bool Button::isClicked() {
     return this->isPressed && !this->wasPressed;

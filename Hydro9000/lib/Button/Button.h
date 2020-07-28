@@ -12,13 +12,6 @@ class Button {
             BLINKING,
             BLINKING_ON_LONG_OFF_SHORT
         };
-        enum Name {
-            RED,
-            BLUE,
-            SELECT_WHEEL,
-            KEY_SWITCH,
-            EMERGENCY_STOP
-        };
 
         static unsigned long currentMillis;
         int stateWhenLedOn = HIGH, stateWhenButtonPressed = HIGH;
@@ -27,7 +20,8 @@ class Button {
         bool isLedOn, isPressed, wasPressed;
 
         Button();
-		Button(int buttonPin, int ledPin = -1);
+        Button(int buttonPin);
+		Button(int buttonPin, int ledPin);
         bool isClicked();
         void setLedState(Button::LedState state);
         void update();
