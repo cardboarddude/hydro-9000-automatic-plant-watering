@@ -2,7 +2,7 @@
 #include "WaterPump.h"
 
 WaterPump::WaterPump() {}
-WaterPump::WaterPump(int motorPin) {
+WaterPump::WaterPump(unsigned char motorPin) {
     this->motorPin = motorPin;
     this->isRunning = false;
 }

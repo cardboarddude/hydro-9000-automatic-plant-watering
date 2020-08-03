@@ -4,8 +4,9 @@
 
 #include "Arduino.h"
 #include <Map>
+#include "../PlantController/PlantController.h"
 #include "../SelectWheel/SelectWheel.h"
-#include "../SelectMenu/SelectMenu.h"
+#include "../ScreenMenu/ScreenMenu.h"
 #include "../Button/Button.h"
 #include "../Screen/Screen.h"
 
@@ -15,10 +16,15 @@ class ControlPanel {
 		static void setCurrentMillis(unsigned long millis) {
 			ControlPanel::currentMillis = millis;
 			Button::currentMillis = millis;
+			PlantController::currentMillis = millis;
 		}
 		enum ScreenName{
 			HOME, 
-			CURRENT_MOISTURE_LEVELS
+			MAIN_MENU,
+			CURRENT_MOISTURE_LEVELS,
+			MOISTURE_LEVEL_HISTORY_SECONDS,
+			MOISTURE_LEVEL_HISTORY_MINUTES,
+			MOISTURE_LEVEL_HISTORY_QUARTER_HOURS
 		};
         enum ButtonName {
             RED,
@@ -27,17 +33,18 @@ class ControlPanel {
             KEY_SWITCH,
             EMERGENCY_STOP
         };
+		ScreenName activeScreenName;
 
 		ControlPanel();
 		void setup();
-        void addSelectMenu(SelectMenu& menu);
+        void addScreenMenu(ScreenMenu menu);
         void addSelectWheel(SelectWheel& selectWheel);
         void addButton(ControlPanel::ButtonName buttonName, Button& button);
-		void addScreen(ScreenName sType, Screen& screen);
+		void addScreen(ScreenName sType, Screen screen);
 		bool canShowDisplay();
 		void turnOffDisplay();
 		void turnOffLeds();
-		void update(std::vector<double>& data);
+		void update(std::vector<double> data);
 		bool isEmergency();
 		void setupScreens();
 		void updateButtons();
@@ -47,9 +54,9 @@ class ControlPanel {
 
 	private:
         SelectWheel selectWheel;
-        SelectMenu menu;
+        ScreenMenu menu;
         std::map<ControlPanel::ButtonName, Button> buttons;
-		ScreenName activeScreenName;
+		// Use pointers to allow for type casting
         std::map<ScreenName, Screen*> screens;
 };
 

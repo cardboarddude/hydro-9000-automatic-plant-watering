@@ -6,13 +6,13 @@
 
 class WaterPump {
     private: 
-        int motorPin;
+        unsigned char motorPin;
 
     public:
         bool isRunning;
         
         WaterPump();
-        WaterPump(int motorPin);
+        WaterPump(unsigned char motorPin);
         void setup();
         void start();
         void stop();

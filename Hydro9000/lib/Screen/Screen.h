@@ -12,9 +12,9 @@ class Screen {
         static Adafruit_SSD1306* display;
         static bool isSetup;
 
-        int contentAreaStartX = 0, contentAreaStartY = 21;
-        int contentAreaHeight = 43, contentAreaWidth = 128;
-        int contentAreaVirtualHeight = contentAreaWidth;
+        unsigned char contentAreaStartX = 0, contentAreaStartY = 20;
+        unsigned char contentAreaHeight = 43, contentAreaWidth = 128;
+        unsigned char contentAreaVirtualHeight = contentAreaWidth;
         
         Screen();
         Screen(String title);

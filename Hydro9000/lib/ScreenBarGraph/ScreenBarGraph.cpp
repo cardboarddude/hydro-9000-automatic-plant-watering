@@ -13,8 +13,8 @@ void ScreenBarGraph::addBar(double value, String label) {
 }
 void ScreenBarGraph::doDisplay() {
     int barWidth = this->getBarWidth();
-    Serial.print(" Bar width: "+String(barWidth));
-    Serial.print(" Value count: "+String(this->values.size()));
+    // Serial.print(" Bar width: "+String(barWidth));
+    // Serial.print(" Value count: "+String(this->values.size()));
     for (unsigned int i = 0; i < this->values.size(); i++) {
         std::vector<Point> barSize = this->getBarPosition(i, barWidth);
         this->doDisplayBar(barSize);
@@ -41,7 +41,8 @@ DisplayText ScreenBarGraph::getLabel(int labelIndex, std::vector<Point>& barPosi
         this->labels.at(labelIndex),
         barPosition[0].x,
         barPosition[0].y,
-        barPosition[1].x
+        barPosition[1].x,
+        -1
     );
     label.fontSize = 1;
     label.topBottomPadding = 3;
@@ -73,21 +74,21 @@ std::vector<Point> ScreenBarGraph::getBarPosition(int index, int barWidth) {
         index * (barWidth + this->barSpacing) + this->startX,
         this->startY + this->height - barHeight
     ));
-    Serial.print(points[0].toString());
+    // Serial.print(points[0].toString());
     //bottomRightCorner
     points.push_back(Point(
         index * (barWidth + this->barSpacing) + barWidth + this->startX,
         this->startY + this->height
     ));
-    Serial.print(points[1].toString());
+    // Serial.print(points[1].toString());
 
     return points;
 }
-int ScreenBarGraph::getBarHeight(int index) {
+unsigned char ScreenBarGraph::getBarHeight(unsigned char index) {
     double heightAsPercentageOfGraphHeight = (this->values.at(index) / (this->maxValue - this->minValue));
     return this->height * heightAsPercentageOfGraphHeight;
 }
-int ScreenBarGraph::getBarWidth() {
+unsigned char ScreenBarGraph::getBarWidth() {
     if (this->values.size() > 0) {
         int totalSpacing = this->barSpacing * (this->values.size() - 1);
         return (this->width - totalSpacing) / this->values.size();

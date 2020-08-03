@@ -16,7 +16,7 @@ void Screen::addTitle(DisplayText& title) {
 }
 void Screen::addTitle(String title) {
     title.toUpperCase();
-    DisplayText text(title, 0, 0);
+    DisplayText text(title, 0, 0, -1, -1);
     text.fontSize = 2;
     this->title = text;
 }

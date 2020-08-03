@@ -12,6 +12,7 @@ Button::Button(int buttonPin, int ledPin) {
     this->hasLed = true;
     this->ledPin = ledPin;
     pinMode(this->ledPin, OUTPUT);
+    this->setLedState(LedState::OFF);
 }
 bool Button::isClicked() {
     return this->isPressed && !this->wasPressed;
@@ -36,12 +37,14 @@ void Button::updateLed() {
             this->turnLedOff(); 
             break;
         case Button::LedState::BLINKING:
-            int timeElapsed = Button::currentMillis - this->lastBlinkMS;
-            if (this->isLedOn && timeElapsed >= this->blinkOnDurationMS) {
-                this->turnLedOff();
-            } else if (!this->isLedOn && timeElapsed >= this->blinkOffDurationMS) {
-                this->turnLedOn();
-            } 
+            {
+                int timeElapsed = Button::currentMillis - this->lastBlinkMS;
+                if (this->isLedOn && timeElapsed >= this->blinkOnDurationMS) {
+                    this->turnLedOff();
+                } else if (!this->isLedOn && timeElapsed >= this->blinkOffDurationMS) {
+                    this->turnLedOn();
+                } 
+            }
             break;
         default:
             Serial.print("Unknown led state '"+String(this->ledState)+"'");

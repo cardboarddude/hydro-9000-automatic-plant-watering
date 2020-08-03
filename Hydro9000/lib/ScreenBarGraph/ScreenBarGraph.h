@@ -6,9 +6,9 @@
 
 class ScreenBarGraph : public Screen {
 	public:
-        int startX = this->contentAreaStartX, startY = this->contentAreaStartY;
-        int width = this->contentAreaWidth, height = this->contentAreaHeight;
-        int barSpacing = 1;
+        unsigned char startX = this->contentAreaStartX, startY = this->contentAreaStartY;
+        unsigned char width = this->contentAreaWidth, height = this->contentAreaHeight;
+        unsigned char barSpacing = 1;
         double minValue = 0.0, maxValue = 1.0;
         
         ScreenBarGraph();
@@ -21,8 +21,8 @@ class ScreenBarGraph : public Screen {
         void doDisplayLabel(int labelIndex, std::vector<Point>& barPosition);
         DisplayText getLabel(int labelIndex, std::vector<Point>& barPosition);
         std::vector<Point> getBarPosition(int index, int barWidth = -1);
-        int getBarHeight(int index);
-        int getBarWidth();
+        unsigned char getBarHeight(unsigned char index);
+        unsigned char getBarWidth();
 
     private: 
         std::vector<String> labels;

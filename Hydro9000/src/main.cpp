@@ -10,7 +10,7 @@
 #include "Hydro9000.h"
 #include "MoistureSensor.h"
 #include "SelectWheel.h"
-#include "SelectMenu.h"
+#include "ScreenMenu.h"
 #include "WaterPump.h"
 // #include "WaterPumps/WaterPumpBox.h"
 #include "PlantController.h"
@@ -27,7 +27,7 @@ bool Screen::isSetup = false;
 Adafruit_SSD1306* DisplayText::display = Screen::display;
 unsigned long Hydro9000::currentMillis = 0;
 unsigned long ControlPanel::currentMillis = 0;
-unsigned long MoistureSensor::currentMillis = 0;
+unsigned long PlantController::currentMillis = 0;
 unsigned long Button::currentMillis = 0;
 
 // sensorPins, pumpPins, and plantNames should be the same size()
@@ -59,16 +59,54 @@ const int EMERGENCY_STOP_BUTTON_PIN = 2;
 const int BLUE_BUTTON_LED_PIN = 52;
 const int RED_BUTTON_LED_PIN = 53;
 
-const int DOUBLE_CLICK_SPEED_LOOP_COUNT = 100;
+const int double_CLICK_SPEED_LOOP_COUNT = 100;
 const int SCROLLING_SPEED = 2; // [0, n] where 0 is the fastest and n is the slowest 
 
 const int BLUE_LED_BLINK_INTERVAL_MS = 575;
 
 SelectWheel selectWheel;
 // // volatile int iterationsSinceLastClick = 0;
-// // volatile bool isSelectWheelClicked = false, isSelectWheelDoubleClicked = false;
-// // SelectMenu mainMenu, waterLevelsMenu(), waterPlantsMenu(), historyMenu(), settingsMenu();
-// // SelectMenu* currentMenu;
+// // volatile bool isSelectWheelClicked = false, isSelectWheeldoubleClicked = false;
+// // ScreenMenu mainMenu, waterLevelsMenu(), waterPlantsMenu(), historyMenu(), settingsMenu();
+// // ScreenMenu* currentMenu;
+
+
+extern unsigned int __bss_end;
+extern unsigned int __heap_start;
+extern void *__brkval;
+// SP will be replaced with: *((uint16_t volatile *)(0x3D))
+
+struct __freelist {
+  size_t sz;
+  struct __freelist *nx;
+};
+extern struct __freelist *__flp;
+struct __freelist *freelist_to_walk;
+
+void memCheck() {
+      Serial.println("");
+  Serial.println("SRAM area borders =================");
+  Serial.print(".bss end     = ");
+  Serial.println((int)&__bss_end);
+  Serial.print("Heap start   = ");
+  Serial.println((int)&__heap_start);
+  Serial.print("__brkval     = ");
+  Serial.println((int)__brkval);
+  Serial.print("Stack pointer= ");
+  Serial.println((int)SP);
+  Serial.print("Free memory  = ");
+  if(__brkval == 0x00)Serial.println(SP - (int)&__bss_end);
+  else Serial.println(SP - (int)__brkval);
+  
+  Serial.println("");
+  Serial.println("Free locations in the free list ===");
+  for (freelist_to_walk = __flp; freelist_to_walk; freelist_to_walk = freelist_to_walk->nx) {
+    Serial.print("Address= ");
+    Serial.print((int) &freelist_to_walk->nx);
+    Serial.print(" Free bytes= ");
+    Serial.println((int) freelist_to_walk->sz);
+  }
+}
 
 void doEncoderPinARising() {
   selectWheel.readPinB();
@@ -94,7 +132,7 @@ void setup() {
             
   Hydro9000::setCurrentMillis(0);
   for (unsigned int i = 0; i < pumpPins.size(); i++) {
-    MoistureSensor sensor(sensorPins[i], MoistureSensor::addressOffset * i);
+    MoistureSensor sensor(sensorPins[i]);
     WaterPump pump(pumpPins[i]);
 
     PlantController plant(sensor, pump);
@@ -136,10 +174,10 @@ void setup() {
   // display.clearDisplay();
   // display.display();
 
-  // waterPlantsMenu = SelectMenu(String("RUN PUMPS"), Screen::display);
-  // historyMenu = SelectMenu(String("HISTORY"), subMenuHistoryItems, Screen::display);
-  // settingsMenu = SelectMenu(String("SETTINGS"), subMenuSettingsItems, Screen::display);
-  // mainMenu = SelectMenu(String("MENU"), Screen::display);
+  // waterPlantsMenu = ScreenMenu(String("RUN PUMPS"), Screen::display);
+  // historyMenu = ScreenMenu(String("HISTORY"), subMenuHistoryItems, Screen::display);
+  // settingsMenu = ScreenMenu(String("SETTINGS"), subMenuSettingsItems, Screen::display);
+  // mainMenu = ScreenMenu(String("MENU"), Screen::display);
   
   // historyMenu.addItemAction("Past Hour", goToHistoryPastHour);
 
@@ -172,11 +210,37 @@ void setup() {
 // bool wasSelectWheelPressed = false, wasBluePressed = false, wasRedPressed = false, wasKeyUnlocked = false;
 // bool isMoistureLevelsVisible = false;
 // unsigned long timeoutMS = 0, isBlueLedOn = true, isMenuVisible = false;
-
+int loopItrCount = 0;
 void loop() {
-  Serial.println("updating");
+  Serial.println("");
+  Serial.println("Loop count --- "+String(++loopItrCount)+" ---");
+  memCheck();
   hydro.update();
-  delay(500);
+  // Screen::display->clearDisplay();
+  // Screen::display->setTextColor(WHITE);
+  // Screen::display->setTextSize(1);
+  // Screen::display->setCursor(64, 32);
+  // Screen::display->println("test1");
+  // Screen::display->display();
+  // delay(1000);
+  // Screen::display->clearDisplay();
+  // Screen::display->setRotation(0);
+  // Screen::display->setCursor(64, 32);
+  // Screen::display->print("test2");
+  // Screen::display->display();
+  // delay(1000);
+  // Screen::display->clearDisplay();
+  // Screen::display->setRotation(0);
+  // Screen::display->setCursor(64, 32);
+  // Screen::display->print("test3");
+  // Screen::display->display();
+  // delay(1000);
+  // Screen::display->clearDisplay();
+  // Screen::display->setRotation(1);
+  // Screen::display->setCursor(64, 32);
+  // Screen::display->print("test4");
+  // Screen::display->display();
+  // delay(1000);
   // switch (currentScreen) {
   //   case SCREEN::OFF:
   //     isDisplaySetup = false;
@@ -380,7 +444,7 @@ void loop() {
 //   }
 // }
 
-// void drawMoistureBar(float levelPercent, int16_t barIndex) {
+// void drawMoistureBar(double levelPercent, int16_t barIndex) {
 //   const int BAR_WIDTH = 23;
 //   const int BAR_MAX_HEIGHT = 48;
 //   const int BAR_MIN_HEIGHT = 1;
@@ -389,7 +453,7 @@ void loop() {
 //   const int START_Y = 0;
 //   const int CHAR_WIDTH = 6, TEXT_HEIGHT = 7, TEXT_PADDING_Y = 3;
 
-//   int height = std::max(float(BAR_MIN_HEIGHT), levelPercent * BAR_MAX_HEIGHT);
+//   int height = std::max(double(BAR_MIN_HEIGHT), levelPercent * BAR_MAX_HEIGHT);
 //   int startX = barIndex * (BAR_WIDTH + BAR_SPACING) + START_X;
 //   int startY = display.height() - height;
 
@@ -430,7 +494,7 @@ void loop() {
 //   displayTitle("MOISTURE");
 //   display.setTextSize(1);
 //   display.setTextColor(WHITE);
-//   std::vector<float> goals = hydro.getGoals();
+//   std::vector<double> goals = hydro.getGoals();
 
 //   for (int i = 0; i < PLANT_COUNT; i++) {
 //     drawMoistureGoal(goals[i], i);
@@ -439,7 +503,7 @@ void loop() {
 //   display.setTextColor(WHITE);
 // }
 
-// void drawMoistureGoal(float levelPercent, int16_t barIndex) {
+// void drawMoistureGoal(double levelPercent, int16_t barIndex) {
 //   const int BAR_WIDTH = 23;
 //   const int BAR_MAX_HEIGHT = 48;
 //   const int BAR_MIN_HEIGHT = 1;
@@ -447,7 +511,7 @@ void loop() {
 //   const int START_X = 128-(BAR_SPACING + BAR_WIDTH) * 5;
 //   const int START_Y = 0;
 
-//   int height = std::max(float(BAR_MIN_HEIGHT), levelPercent * BAR_MAX_HEIGHT);
+//   int height = std::max(double(BAR_MIN_HEIGHT), levelPercent * BAR_MAX_HEIGHT);
 //   int startX = barIndex * (BAR_WIDTH + BAR_SPACING) + START_X;
 //   int startY = display.height() - height;
   

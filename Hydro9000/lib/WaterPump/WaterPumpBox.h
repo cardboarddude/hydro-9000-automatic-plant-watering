@@ -12,14 +12,14 @@ class WaterPumpBox {
     public:
         WaterPumpBox();
         WaterPumpBox(std::vector<WaterPump> pumps);
-        WaterPumpBox(WaterPump pumps[], int size);
+        WaterPumpBox(WaterPump pumps[], unsigned int size);
         void addPump(WaterPump pump);
         void setup();
-        void startPump(int pumpIndex);
-        void stopPump(int pumpIndex);
-        void togglePump(int pumpIndex);
+        void startPump(unsigned int pumpIndex);
+        void stopPump(unsigned int pumpIndex);
+        void togglePump(unsigned int pumpIndex);
         void stopAllPumps();
-        void stopAllPumpsExcept(int pumpIndex);
+        void stopAllPumpsExcept(unsigned int pumpIndex);
         bool isPumpRunning();
 };
 

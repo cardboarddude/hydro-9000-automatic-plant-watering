@@ -7,29 +7,33 @@
 #include "../ControlPanel/ControlPanel.h"
 #include "../PlantController/PlantController.h"
 #include "../ScreenBarGraph/ScreenBarGraph.h"
-#include "../SelectMenu/SelectMenu.h"
+#include "../ScreenMenu/ScreenMenu.h"
 
 class Hydro9000 {
-	private:
-		std::vector<PlantController> plantControllers;
-		PlantController activePlantController;
-		ControlPanel controlPanel;
-
 	public: 
+		const static unsigned char MAX_COUNT = 5;
 		static unsigned long currentMillis;
 		static void setCurrentMillis(unsigned long millis) {
 			Hydro9000::currentMillis = millis;
 			ControlPanel::setCurrentMillis(millis);
 		}
 		bool isMultiplePumpsAtSameAllowed = false;
+		unsigned char plantCount = 0;
 
 		Hydro9000();
 		void update();
 		void addPlantController(PlantController& controller);
 		void addControlPanel(ControlPanel& controlPanel);
 		void setup();
+		void updatePlantControllers();
+		std::vector<double> getData();
 		void doEmergencyStop();
-		std::vector<float> getGoals();
+		std::vector<double> getGoals();
+
+	private:
+		PlantController plantControllers[Hydro9000::MAX_COUNT];
+		PlantController activePlantController;
+		ControlPanel controlPanel;
 };
 
 #endif
