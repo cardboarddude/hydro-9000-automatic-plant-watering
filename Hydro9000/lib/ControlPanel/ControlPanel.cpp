@@ -95,7 +95,7 @@ void ControlPanel::turnOffLeds() {
         }
     }
 }
-std::vector<double> ControlPanel::update(std::vector<double> data) {
+std::vector<double> ControlPanel::update(std::vector<double> data, bool isPumpRunning) {
     std::vector<double> result;
 
     this->updateButtons();
@@ -105,11 +105,21 @@ std::vector<double> ControlPanel::update(std::vector<double> data) {
     if (!isOn) {
         Screen::turnOffDisplay();
         this->activeScreenName = ScreenName::HOME;
+        this->buttons[ControlPanel::ButtonName::RED].setLedState(Button::LedState::OFF);
+        this->buttons[ControlPanel::ButtonName::BLUE].setLedState(Button::LedState::OFF);
     } else {
         if (wasJustSwitchedOn) {
             Screen::setup();
         } else if (this->wasAnyButtonClicked()) {
             result = this->doAction();
+        }
+
+        this->buttons[ControlPanel::ButtonName::RED].setLedState(Button::LedState::ON);
+
+        if (isPumpRunning) {
+            this->buttons[ControlPanel::ButtonName::BLUE].setLedState(Button::LedState::BLINKING);
+        } else {
+            this->buttons[ControlPanel::ButtonName::BLUE].setLedState(Button::LedState::ON);
         }
 
         this->doScreenDisplay(data);

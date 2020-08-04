@@ -23,7 +23,7 @@ void Button::setLedState(Button::LedState state) {
 void Button::update() {
     this->wasPressed = this->isPressed;
     this->isPressed = digitalRead(this->buttonPin) == this->stateWhenButtonPressed;
-    
+
     if (this->hasLed) {
         this->updateLed();
     }
@@ -46,6 +46,16 @@ void Button::updateLed() {
                 } 
             }
             break;
+        case Button::LedState::BLINKING_ON_LONG_OFF_SHORT:
+            {
+                int timeElapsed = Button::currentMillis - this->lastBlinkMS;
+                if (this->isLedOn && timeElapsed >= this->blinkOnDurationLongMS) {
+                    this->turnLedOff();
+                } else if (!this->isLedOn && timeElapsed >= this->blinkOffDurationMS) {
+                    this->turnLedOn();
+                } 
+            }
+            break;
         default:
             Serial.print("Unknown led state '"+String(this->ledState)+"'");
     }
@@ -53,7 +63,8 @@ void Button::updateLed() {
 void Button::turnLedOn() {
     digitalWrite(this->ledPin, this->stateWhenLedOn);
     this->isLedOn = true;
-    if (this->ledState == Button::LedState::BLINKING) {
+    if (this->ledState == Button::LedState::BLINKING
+        || this->ledState == Button::LedState::BLINKING_ON_LONG_OFF_SHORT) {
         this->lastBlinkMS = Button::currentMillis;
     }
 }
@@ -61,7 +72,8 @@ void Button::turnLedOff() {
     int stateWhenOff = (this->stateWhenLedOn == HIGH ? LOW : HIGH);
     digitalWrite(this->ledPin, stateWhenOff);
     this->isLedOn = false;
-    if (this->ledState == Button::LedState::BLINKING) {
+    if (this->ledState == Button::LedState::BLINKING
+        || this->ledState == Button::LedState::BLINKING_ON_LONG_OFF_SHORT) {
         this->lastBlinkMS = Button::currentMillis;
     }
 }

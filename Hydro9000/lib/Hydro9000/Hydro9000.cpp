@@ -36,7 +36,7 @@ void Hydro9000::update() {
 
     this->updatePlantControllers();
     std::vector<double> data = this->getData();
-    controlPanelUpdateResult = this->controlPanel.update(data);
+    controlPanelUpdateResult = this->controlPanel.update(data, this->isPumpRunning());
 
     if (this->controlPanel.activeScreenName == ControlPanel::ScreenName::PUMP_CONTROL) {
         this->updatePumps(controlPanelUpdateResult);
@@ -87,6 +87,15 @@ void Hydro9000::doEmergencyStop() {
     for (unsigned int i = 0; i < this->plantCount; i++) {
         this->plantControllers[i].stopPump();
     }
+}
+bool Hydro9000::isPumpRunning() {
+    for (unsigned int i = 0; i < this->plantCount; i++) {
+        if (this->plantControllers[i].isRunning()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 std::vector<double> Hydro9000::getGoals() {
     std::vector<double> goals;

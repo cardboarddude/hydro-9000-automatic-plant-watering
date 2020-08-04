@@ -45,7 +45,7 @@ class ControlPanel {
 		bool canShowDisplay();
 		void turnOffDisplay();
 		void turnOffLeds();
-		std::vector<double> update(std::vector<double> data);
+		std::vector<double> update(std::vector<double> data, bool isPumpRunning);
 		bool isEmergency();
 		void setupScreens(std::vector<String> plantNames);
 		void updateButtons();

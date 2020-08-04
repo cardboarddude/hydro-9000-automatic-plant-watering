@@ -30,6 +30,7 @@ class Hydro9000 {
 		void doEmergencyStop();
 		std::vector<double> getGoals();
 		void updatePumps(std::vector<double> pumpStatus);
+		bool isPumpRunning();
 
 	private:
 		PlantController plantControllers[Hydro9000::MAX_COUNT];

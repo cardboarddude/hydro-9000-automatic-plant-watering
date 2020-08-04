@@ -15,7 +15,8 @@ class Button {
 
         static unsigned long currentMillis;
         int stateWhenLedOn = HIGH, stateWhenButtonPressed = HIGH;
-        int lastBlinkMS = 0, blinkOnDurationMS = 300, blinkOffDurationMS = 150;
+        unsigned int lastBlinkMS = 0, blinkOnDurationMS = 500, blinkOffDurationMS = 300;
+        unsigned int blinkOnDurationLongMS = 1000, blinkOffDurationLongMS = 500;
         bool hasLed = false;
         bool isLedOn, isPressed, wasPressed;
 
