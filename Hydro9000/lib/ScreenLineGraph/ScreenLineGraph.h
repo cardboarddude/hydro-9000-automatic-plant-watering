@@ -18,7 +18,8 @@ class ScreenLineGraph : public Screen {
         virtual void doDisplay();
         virtual void clear();
         void addPoint(double value);
-
+        void reserveMemory(unsigned char reserveSize);
+        void unreserveMemory();
         void doDisplayPoints();
 
     private:

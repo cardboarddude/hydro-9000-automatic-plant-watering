@@ -65,26 +65,20 @@ void Hydro9000::updatePumps(std::vector<double> pumpStatus) {
 std::vector<double> Hydro9000::getData() {
     std::vector<double> data;
 
-    switch (this->controlPanel.activeScreenName) {
-    case ControlPanel::ScreenName::CURRENT_MOISTURE_LEVELS:
+    if (this->controlPanel.activeScreenName == ControlPanel::ScreenName::CURRENT_MOISTURE_LEVELS) {
         for (unsigned int i = 0; i < this->plantCount; i++) {
             data.push_back(this->plantControllers[i].getCurrentPercentage());
         }
-        break;
-    case ControlPanel::ScreenName::MOISTURE_LEVEL_HISTORY_SECONDS:
-        data = this->plantControllers[0].getHistoryPercentage(PlantController::TimePeriodInMS::SECOND*50);
-        break;
-    case ControlPanel::ScreenName::MOISTURE_LEVEL_HISTORY_MINUTES:
-        data = this->plantControllers[0].getHistoryPercentage(PlantController::TimePeriodInMS::MINUTE*50);
-        break;
-    case ControlPanel::ScreenName::MOISTURE_LEVEL_HISTORY_QUARTER_HOURS:
-        data = this->plantControllers[0].getHistoryPercentage(PlantController::TimePeriodInMS::QUARTER_HOUR*50);
-        break;
-    case ControlPanel::ScreenName::PUMP_CONTROL:
+    } else if (this->controlPanel.activeScreenName == ControlPanel::ScreenName::MOISTURE_LEVEL_HISTORY_SECONDS) {
+        data = this->plantControllers[0].getHistoryPercentage(PlantController::TimePeriodInMS::SECOND*HistoricalData::HISTORY_SIZE);
+    } else if (this->controlPanel.activeScreenName ==  ControlPanel::ScreenName::MOISTURE_LEVEL_HISTORY_MINUTES) {
+        data = this->plantControllers[0].getHistoryPercentage(PlantController::TimePeriodInMS::MINUTE*HistoricalData::HISTORY_SIZE);
+    } else if (this->controlPanel.activeScreenName == ControlPanel::ScreenName::MOISTURE_LEVEL_HISTORY_QUARTER_HOURS) {
+        data = this->plantControllers[0].getHistoryPercentage(PlantController::TimePeriodInMS::QUARTER_HOUR*HistoricalData::HISTORY_SIZE);
+    } else if (this->controlPanel.activeScreenName ==  ControlPanel::ScreenName::PUMP_CONTROL) {
         for (unsigned int i = 0; i < this->plantCount; i++) {
             data.push_back(this->plantControllers[i].isRunning());
         }
-        break;
     }
 
     return data;

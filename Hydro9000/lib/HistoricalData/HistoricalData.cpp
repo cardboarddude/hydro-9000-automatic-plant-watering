@@ -7,28 +7,20 @@ HistoricalData::HistoricalData() {}
 void HistoricalData::loadData(unsigned int eepromAddress) {
 	this->eepromAddress = eepromAddress;
 	unsigned int address = this->eepromAddress;
-	EEPROM.get(address, this->readingHistoryInSecondsIndex);
-	address += sizeof(this->readingHistoryInSecondsIndex);
 	EEPROM.get(address, this->readingHistoryInMinutesIndex);
 	address += sizeof(this->readingHistoryInMinutesIndex);
 	EEPROM.get(address, this->readingHistoryInQuarterHoursIndex);
 	address += sizeof(this->readingHistoryInQuarterHoursIndex);
-	EEPROM.get(address, this->readingHistoryInSeconds);
-	address += sizeof(this->readingHistoryInSeconds);
 	EEPROM.get(address, this->readingHistoryInMinutes);
 	address += sizeof(this->readingHistoryInMinutes);
 	EEPROM.get(address, this->readingHistoryInQuarterHours);
 }
 void HistoricalData::saveData() {
 	int address = this->eepromAddress;
-	EEPROM.put(address, this->readingHistoryInSecondsIndex);
-	address += sizeof(this->readingHistoryInSecondsIndex);
 	EEPROM.put(address, this->readingHistoryInMinutesIndex);
 	address += sizeof(this->readingHistoryInMinutesIndex);
 	EEPROM.put(address, this->readingHistoryInQuarterHoursIndex);
 	address += sizeof(this->readingHistoryInQuarterHoursIndex);
-	EEPROM.put(address, this->readingHistoryInSeconds);
-	address += sizeof(this->readingHistoryInSeconds);
 	EEPROM.put(address, this->readingHistoryInMinutes);
 	address += sizeof(this->readingHistoryInMinutes);
 	EEPROM.put(address, this->readingHistoryInQuarterHours);
@@ -38,26 +30,34 @@ void HistoricalData::pushLastSecondReadings(short value) {
 	this->readingHistoryInSecondsIndex = (HistoricalData::HISTORY_SIZE + this->readingHistoryInSecondsIndex + 1) % HistoricalData::HISTORY_SIZE;
 }
 void HistoricalData::pushLastMinuteReadings() {
+	Serial.println("========== Saving last minute ==========");
 	double readingTotalSinceLastMinute = 0;
+	int i;
 
-	for (int i = 1; i <= 60; i++) {
+	for (i = 1; i <= 60 && i < HistoricalData::HISTORY_SIZE; i++) {
 		int secondHistoryIndex = (HistoricalData::HISTORY_SIZE + this->readingHistoryInSecondsIndex - i) % HistoricalData::HISTORY_SIZE;
 		readingTotalSinceLastMinute += this->readingHistoryInSeconds[secondHistoryIndex];
 	}
 
-	this->readingHistoryInMinutes[this->readingHistoryInMinutesIndex] = readingTotalSinceLastMinute / 15;
-	this->readingHistoryInMinutesIndex = (HistoricalData::HISTORY_SIZE + this->readingHistoryInMinutesIndex + 1) % HistoricalData::HISTORY_SIZE;
+	if (i-1 > 0) {
+		this->readingHistoryInMinutes[this->readingHistoryInMinutesIndex] = readingTotalSinceLastMinute / (i-1);
+		this->readingHistoryInMinutesIndex = (HistoricalData::HISTORY_SIZE + this->readingHistoryInMinutesIndex + 1) % HistoricalData::HISTORY_SIZE;
+	}
 }
 void HistoricalData::pushLastQuarterHourReadings() {
+	Serial.println("========== Saving last quarter hour ==========");
 	double readingTotalSinceLastQuarterHour = 0;
+	int i;
 
-	for (int i = 1; i <= 15; i++) {
+	for (i = 1; i <= 15 && i < HistoricalData::HISTORY_SIZE; i++) {
 		int minuteHistoryIndex = (HistoricalData::HISTORY_SIZE + this->readingHistoryInMinutesIndex - i) % HistoricalData::HISTORY_SIZE;
 		readingTotalSinceLastQuarterHour += this->readingHistoryInMinutes[minuteHistoryIndex];
 	}
 
-	this->readingHistoryInQuarterHours[this->readingHistoryInQuarterHoursIndex] = readingTotalSinceLastQuarterHour / 15;
-	this->readingHistoryInQuarterHoursIndex = (HistoricalData::HISTORY_SIZE + this->readingHistoryInQuarterHoursIndex + 1) % HistoricalData::HISTORY_SIZE;
+	if (i-1 > 0) {
+		this->readingHistoryInQuarterHours[this->readingHistoryInQuarterHoursIndex] = readingTotalSinceLastQuarterHour / (i-1);
+		this->readingHistoryInQuarterHoursIndex = (HistoricalData::HISTORY_SIZE + this->readingHistoryInQuarterHoursIndex + 1) % HistoricalData::HISTORY_SIZE;
+	}
 }
 void HistoricalData::writeSerial() {
 	Serial.println(

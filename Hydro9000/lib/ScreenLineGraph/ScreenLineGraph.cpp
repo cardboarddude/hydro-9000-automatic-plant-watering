@@ -40,6 +40,16 @@ void ScreenLineGraph::addPoint(double value) {
     }
     this->values.push_back(value);
 }
+void ScreenLineGraph::reserveMemory(unsigned char reserveSize) {
+    if (reserveSize > 0) {
+        this->values.reserve(reserveSize);
+    }
+}
+void ScreenLineGraph::unreserveMemory() {
+    Serial.println("Freeing up "+String(sizeof(double)*(this->values.capacity()))+" bytes to ");
+    std::vector<double>().swap(this->values);
+    Serial.print(String(sizeof(double)*(this->values.capacity()))+" bytes. ");
+}
 void ScreenLineGraph::doDisplay() {
     this->doDisplayPoints();
     this->xAxisLabel.doDisplay();

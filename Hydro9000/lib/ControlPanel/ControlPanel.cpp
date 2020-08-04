@@ -128,6 +128,7 @@ void ControlPanel::doScreenDisplay(std::vector<double> data) {
     } else if (this->activeScreenName == ScreenName::MOISTURE_LEVEL_HISTORY_SECONDS
         || this->activeScreenName == ScreenName::MOISTURE_LEVEL_HISTORY_MINUTES
         || this->activeScreenName == ScreenName::MOISTURE_LEVEL_HISTORY_QUARTER_HOURS) {
+        (static_cast<ScreenLineGraph*>(activeScreen))->reserveMemory(HistoricalData::HISTORY_SIZE);
         for (unsigned int i = 0; i < data.size(); i++) {
             (static_cast<ScreenLineGraph*>(activeScreen))->addPoint(data.at(i));
         }
@@ -159,6 +160,7 @@ std::vector<double> ControlPanel::doAction() {
         || this->activeScreenName == ScreenName::MOISTURE_LEVEL_HISTORY_MINUTES
         || this->activeScreenName == ScreenName::MOISTURE_LEVEL_HISTORY_QUARTER_HOURS) {
 
+        (static_cast<ScreenLineGraph*>(this->screens[this->activeScreenName]))->unreserveMemory();
         this->activeScreenName = ScreenName::HISTORY_MENU;
     } else if (this->activeScreenName == ScreenName::MAIN_MENU
         || this->activeScreenName == ScreenName::HISTORY_MENU) {
