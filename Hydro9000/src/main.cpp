@@ -4,17 +4,12 @@
 #include <Adafruit_GFX.h>
 #include <Wire.h>
 #include <ArduinoSTL.h>
-#include <vector>
-#include <math.h> 
-#include <EEPROM.h>
 #include "Hydro9000.h"
 #include "MoistureSensor.h"
 #include "SelectWheel.h"
 #include "ScreenMenu.h"
 #include "WaterPump.h"
-// #include "WaterPumps/WaterPumpBox.h"
 #include "PlantController.h"
-// #include "Hydro9000/Assets.h"
 #include "ControlPanel.h"
 #include "Button.h"
 
@@ -31,38 +26,26 @@ unsigned long PlantController::currentMillis = 0;
 unsigned long Button::currentMillis = 0;
 
 // sensorPins, pumpPins, and plantNames should be the same size()
-std::vector<int> sensorPins = {54, 55, 56, 57, 58};
-std::vector<int> pumpPins = {30, 34, 38, 42, 46};
-std::vector<String> plantNames = {"Basil", "Cilantro", "Oregano", "Thyme", "Rosemary"};
-enum MILLIS_FROM {
-  MILLIS = 1,
-  SECONDS = 1000,
-  MINUTES = 60000,
-  QUARTER_HOURS = 900000,
-  HOURS = 3600000,
-  DAYS = 86400000
-};
+const unsigned char PLANT_COUNT PROGMEM = 5;
 
 Hydro9000 hydro;
-// std::vector<String> subMenuWaterPlantsItems = {"Plant #1", "Plant #2", "Plant #3", "Plant #4", "Plant #5"};
-// std::vector<String> subMenuHistoryItems = {"Past Day", "Past Week", "Past Month"};
 // std::vector<String> subMenuSettingsItems = {"Enable/Disable Pump", "Vacation Mode"};
 
-const int BLUE_BUTTON_PIN = 12;
-const int RED_BUTTON_PIN = 13;
-const int KEY_SWITCH_PIN = 8;
-const int SELECT_WHEEL_BUTTON_PIN = 7;
-const int SELECT_WHEEL_ENCODER_PIN_A = 18;
-const int SELECT_WHEEL_ENCODER_PIN_B = 19;
-const int EMERGENCY_STOP_BUTTON_PIN = 2;
+const unsigned char  BLUE_BUTTON_PIN PROGMEM = 12;
+const unsigned char RED_BUTTON_PIN PROGMEM = 13;
+const unsigned char KEY_SWITCH_PIN PROGMEM = 8;
+const unsigned char SELECT_WHEEL_BUTTON_PIN PROGMEM = 7;
+const unsigned char SELECT_WHEEL_ENCODER_PIN_A PROGMEM = 18;
+const unsigned char SELECT_WHEEL_ENCODER_PIN_B PROGMEM = 19;
+const unsigned char EMERGENCY_STOP_BUTTON_PIN PROGMEM = 2;
 
-const int BLUE_BUTTON_LED_PIN = 52;
-const int RED_BUTTON_LED_PIN = 53;
+const unsigned char BLUE_BUTTON_LED_PIN PROGMEM = 52;
+const unsigned char RED_BUTTON_LED_PIN PROGMEM = 53;
 
-const int double_CLICK_SPEED_LOOP_COUNT = 100;
-const int SCROLLING_SPEED = 2; // [0, n] where 0 is the fastest and n is the slowest 
+const unsigned char double_CLICK_SPEED_LOOP_COUNT PROGMEM = 100;
+const unsigned char SCROLLING_SPEED PROGMEM = 2; // [0, n] where 0 is the fastest and n is the slowest 
 
-const int BLUE_LED_BLINK_INTERVAL_MS = 575;
+const unsigned int BLUE_LED_BLINK_INTERVAL_MS PROGMEM = 575;
 
 SelectWheel selectWheel;
 // // volatile int iterationsSinceLastClick = 0;
@@ -108,6 +91,12 @@ void memCheck() {
   }
 }
 
+void freeBytes() {
+  Serial.print("Free memory  = ");
+  if(__brkval == 0x00)Serial.println(SP - (int)&__bss_end);
+  else Serial.println(SP - (int)__brkval);
+}
+
 void doEncoderPinARising() {
   selectWheel.readPinB();
   selectWheel.setPinARising();
@@ -131,20 +120,27 @@ void setup() {
   Serial.println("Starting...");
             
   Hydro9000::setCurrentMillis(0);
-  for (unsigned int i = 0; i < pumpPins.size(); i++) {
+  unsigned char sensorPins[PLANT_COUNT] = {54, 55, 56, 57, 58};
+  unsigned char pumpPins[PLANT_COUNT] = {30, 34, 38, 42, 46};
+  String plantNames[PLANT_COUNT] = {"Basil", "Cilantro", "Oregano", "Thyme", "Rosemary"};
+  for (unsigned int i = 0; i < PLANT_COUNT; i++) {
     MoistureSensor sensor(sensorPins[i]);
     WaterPump pump(pumpPins[i]);
 
     PlantController plant(sensor, pump);
     plant.name = "plant_"+String(i);
-    plant.displayName = plantNames.at(i);
+    plant.displayName = plantNames[i];
 
     hydro.addPlantController(plant);
   }
   
   ControlPanel controlPanel;
 
+  attachInterrupt(digitalPinToInterrupt(SELECT_WHEEL_ENCODER_PIN_A), doEncoderPinARising, RISING);
+  attachInterrupt(digitalPinToInterrupt(SELECT_WHEEL_ENCODER_PIN_B), doEncoderPinBFalling, FALLING);
   selectWheel = SelectWheel(SELECT_WHEEL_ENCODER_PIN_A, SELECT_WHEEL_ENCODER_PIN_B);
+  selectWheel.readPinA();
+  selectWheel.readPinB();
   controlPanel.addSelectWheel(selectWheel);
 
   /* Add buttons to control panel */
@@ -164,58 +160,18 @@ void setup() {
   
   hydro.addControlPanel(controlPanel);
   hydro.setup();
+
   Serial.println("Hydro900 setup complete");
-
-  attachInterrupt(digitalPinToInterrupt(selectWheel.pinA), doEncoderPinARising, RISING);
-  attachInterrupt(digitalPinToInterrupt(selectWheel.pinB), doEncoderPinBFalling, FALLING);
-
-
-  // doDisplaySetup();
-  // display.clearDisplay();
-  // display.display();
-
-  // waterPlantsMenu = ScreenMenu(String("RUN PUMPS"), Screen::display);
-  // historyMenu = ScreenMenu(String("HISTORY"), subMenuHistoryItems, Screen::display);
-  // settingsMenu = ScreenMenu(String("SETTINGS"), subMenuSettingsItems, Screen::display);
-  // mainMenu = ScreenMenu(String("MENU"), Screen::display);
-  
-  // historyMenu.addItemAction("Past Hour", goToHistoryPastHour);
-
-  // settingsMenu.addItemAction("Set Water Levels", goToMoistureGoalScreen);
-
-  // waterPlantsMenu.addItemAction("Plant #1", togglePump1);
-  // waterPlantsMenu.addItemAction("Plant #2", togglePump2);
-  // waterPlantsMenu.addItemAction("Plant #3", togglePump3);
-  // waterPlantsMenu.addItemAction("Plant #4", togglePump4);
-  // waterPlantsMenu.addItemAction("Plant #5", togglePump5);
-
-  // VoidFunction fGoToMainMenu = goToMainMenu;
-  // waterLevelsMenu.addItemAction("Go Back", fGoToMainMenu);
-  // waterPlantsMenu.addItemAction("Go Back", fGoToMainMenu);
-  // historyMenu.addItemAction("Go Back", fGoToMainMenu);
-  // settingsMenu.addItemAction("Go Back", fGoToMainMenu);
-  
-
-  // mainMenu.addItemAction("Water Levels", goToMoistureScreen);
-  // mainMenu.addItemSubMenu("Water Plants Now", waterPlantsMenu);
-  // mainMenu.addItemSubMenu("History", historyMenu);
-  // mainMenu.addItemSubMenu("Settings", settingsMenu);
-  // currentMenu = &mainMenu;
-
-  // lastPosition = selectWheel.getClockwiseTurns();
-  // currentScreen = SCREEN::OFF;
 }
 
-
-// bool wasSelectWheelPressed = false, wasBluePressed = false, wasRedPressed = false, wasKeyUnlocked = false;
-// bool isMoistureLevelsVisible = false;
-// unsigned long timeoutMS = 0, isBlueLedOn = true, isMenuVisible = false;
 int loopItrCount = 0;
 void loop() {
-  Serial.println("");
-  Serial.println("Loop count --- "+String(++loopItrCount)+" ---");
-  memCheck();
+  // Serial.println("");
+  // Serial.println("Loop count --- "+String(++loopItrCount)+" ---");
+  // memCheck();
+  freeBytes();
   hydro.update();
+  // delay(1000);
   // Screen::display->clearDisplay();
   // Screen::display->setTextColor(WHITE);
   // Screen::display->setTextSize(1);

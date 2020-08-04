@@ -2,12 +2,11 @@
 #include "EEPROM.h"
 
 SelectWheel::SelectWheel() {}
-SelectWheel::SelectWheel(int pinA, int pinB) {
+SelectWheel::SelectWheel(unsigned char pinA, unsigned char pinB) {
     this->pinA = pinA;
     this->pinB = pinB;
     pinMode(this->pinA, INPUT);
     pinMode(this->pinB, INPUT);
-    EEPROM.get(0, this->clockwiseTurns);
 }
 int SelectWheel::getClockwiseTurns() {
 	return this->clockwiseTurns;

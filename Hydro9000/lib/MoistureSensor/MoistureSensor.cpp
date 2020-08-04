@@ -34,8 +34,8 @@ void MoistureSensor::resetReadings() {
 }
 void MoistureSensor::read() {
 	this->currentReading = analogRead(this->analogPin);
-	Serial.print(this->currentReading);
-	Serial.print(" - ");
+	// Serial.print(this->currentReading);
+	// Serial.print(" - ");
 	this->readingCount++;
 	this->readingTotal += this->currentReading;
 }

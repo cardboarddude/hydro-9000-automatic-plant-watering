@@ -18,13 +18,15 @@ class ControlPanel {
 			Button::currentMillis = millis;
 			PlantController::currentMillis = millis;
 		}
-		enum ScreenName{
+		enum ScreenName {
 			HOME, 
 			MAIN_MENU,
+			HISTORY_MENU,
 			CURRENT_MOISTURE_LEVELS,
 			MOISTURE_LEVEL_HISTORY_SECONDS,
 			MOISTURE_LEVEL_HISTORY_MINUTES,
-			MOISTURE_LEVEL_HISTORY_QUARTER_HOURS
+			MOISTURE_LEVEL_HISTORY_QUARTER_HOURS,
+			PUMP_CONTROL
 		};
         enum ButtonName {
             RED,
@@ -36,25 +38,26 @@ class ControlPanel {
 		ScreenName activeScreenName;
 
 		ControlPanel();
-		void setup();
-        void addScreenMenu(ScreenMenu menu);
+		void setup(std::vector<String> plantNames);
         void addSelectWheel(SelectWheel& selectWheel);
         void addButton(ControlPanel::ButtonName buttonName, Button& button);
 		void addScreen(ScreenName sType, Screen screen);
 		bool canShowDisplay();
 		void turnOffDisplay();
 		void turnOffLeds();
-		void update(std::vector<double> data);
+		std::vector<double> update(std::vector<double> data);
 		bool isEmergency();
-		void setupScreens();
+		void setupScreens(std::vector<String> plantNames);
 		void updateButtons();
 		bool wasAnyButtonClicked();
 		bool wasAnythingClicked();
-		void doNavigation();
+		std::vector<double> doAction();
+		void goToSelectedScreen();
+		void doScreenDisplay(std::vector<double> data);
+		ScreenName getScreenName(String displayName);
 
 	private:
-        SelectWheel selectWheel;
-        ScreenMenu menu;
+        SelectWheel* selectWheel;
         std::map<ControlPanel::ButtonName, Button> buttons;
 		// Use pointers to allow for type casting
         std::map<ScreenName, Screen*> screens;

@@ -43,6 +43,12 @@ void PlantController::update() {
 void PlantController::stopPump() {
     this->pump.stop();
 }
+void PlantController::togglePump() {
+    this->pump.toggle();
+}
+void PlantController::startPump() {
+    this->pump.start();
+}
 double PlantController::getGoal() {
     return this->sensor.getGoalPercentage();
 }
@@ -79,4 +85,7 @@ bool PlantController::isNextMinute() {
 }
 bool PlantController::isNextQuarterHour() {
 	return this->lastQuarterHourMillis + TimePeriodInMS::QUARTER_HOUR <= PlantController::currentMillis;
+}
+bool PlantController::isRunning() {
+    return this->pump.isRunning;
 }

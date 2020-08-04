@@ -6,13 +6,13 @@
 
 class ScreenBarGraph : public Screen {
 	public:
-        unsigned char startX = this->contentAreaStartX, startY = this->contentAreaStartY;
-        unsigned char width = this->contentAreaWidth, height = this->contentAreaHeight;
+        unsigned char startX = this->CONTENT_AREA_START_X, startY = this->CONTENT_AREA_START_Y;
+        unsigned char width = this->CONTENT_AREA_WIDTH, height = this->CONTENT_AREA_HEIGHT;
         unsigned char barSpacing = 1;
         double minValue = 0.0, maxValue = 1.0;
         
         ScreenBarGraph();
-        ScreenBarGraph(String title);
+        ScreenBarGraph(unsigned char id, String title);
         virtual void doDisplay();
         virtual void clear();
         void addBar(double value, String label);

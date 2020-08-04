@@ -22,17 +22,18 @@ class Hydro9000 {
 
 		Hydro9000();
 		void update();
-		void addPlantController(PlantController& controller);
+		void addPlantController(PlantController controller);
 		void addControlPanel(ControlPanel& controlPanel);
 		void setup();
 		void updatePlantControllers();
 		std::vector<double> getData();
 		void doEmergencyStop();
 		std::vector<double> getGoals();
+		void updatePumps(std::vector<double> pumpStatus);
 
 	private:
 		PlantController plantControllers[Hydro9000::MAX_COUNT];
-		PlantController activePlantController;
+		// PlantController activePlantController;
 		ControlPanel controlPanel;
 };
 

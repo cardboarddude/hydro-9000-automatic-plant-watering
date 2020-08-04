@@ -14,16 +14,8 @@ DisplayText::DisplayText(String text, int startX, int startY, int endX, int endY
     this->direction = direction;
 }
 void DisplayText::doDisplay() {
-    Serial.print("Displaying text.");
     DisplayText::display->setTextSize(this->fontSize);
     Point point = this->getCursorPoint();
-    Serial.println("DisplayText: "
-        +String(this->text)+"|"
-        +String(this->fontSize)+"|"
-        +String(this->direction)+"|"
-        +String(this->fontColor)+"|"
-        +String(point.x)+"|"
-        +String(point.y)+"|");
     DisplayText::display->setCursor(point.x, point.y);
     DisplayText::display->setRotation(this->direction);
     DisplayText::display->setTextColor(this->fontColor);

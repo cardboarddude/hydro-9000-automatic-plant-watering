@@ -29,6 +29,8 @@ class PlantController {
         void setup(unsigned int eepromAddress);
         void update();
         void stopPump();
+        void startPump();
+        void togglePump();
         double getGoal();
         double getCurrentPercentage();
         unsigned int getAddressOffset();
@@ -38,6 +40,7 @@ class PlantController {
 		bool isNextMinute();
 		bool isNextQuarterHour();
 		bool hasMetGoal();
+		bool isRunning();
         
     private:
         MoistureSensor sensor;

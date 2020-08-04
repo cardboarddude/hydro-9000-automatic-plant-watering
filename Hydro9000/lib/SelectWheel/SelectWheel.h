@@ -6,13 +6,14 @@
 
 class SelectWheel {
 	public: 
-		int pinA, pinB;
+		unsigned char pinA, pinB;
+        static const unsigned char PROGMEM incrementSize = 2;
         volatile bool isPinAHigh = false, isPinBHigh = false;
         volatile int clockwiseTurns = 0;
         volatile bool hasChanged = false;
         
         SelectWheel();
-		SelectWheel(int, int);
+		SelectWheel(unsigned char pinA, unsigned char pinB);
 		int getClockwiseTurns();
 		int getCounterClockwiseTurns();
 		void resetTurns();

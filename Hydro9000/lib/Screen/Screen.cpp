@@ -4,10 +4,14 @@
 
 Screen::Screen() {
 }
-Screen::Screen(String title) {
+Screen::Screen(unsigned char id) {
+    this->id = id;
+}
+Screen::Screen(unsigned char id, String title) : Screen(id) {
+    this->id = id;
     this->addTitle(title);
 }
-Screen::Screen(DisplayText& title) {
+Screen::Screen(unsigned char id, DisplayText& title) : Screen(id) {
     this->title = title;
 }
 void Screen::addTitle(DisplayText& title) {

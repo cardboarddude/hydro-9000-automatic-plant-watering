@@ -16,7 +16,7 @@ class HistoricalData {
 		double getAverageFromHistoryInQuarterHours(unsigned int periodInMinutes);
 
 	public:		
-		static const unsigned short HISTORY_SIZE = 50;
+		static const unsigned short PROGMEM HISTORY_SIZE = 25;
 		static unsigned long currentMillis;
 
 		unsigned short readingHistoryInSeconds[HISTORY_SIZE];

@@ -6,7 +6,7 @@
 #include "Adafruit_SSD1306.h"
 
 ScreenBarGraph::ScreenBarGraph() : Screen::Screen() {}
-ScreenBarGraph::ScreenBarGraph(String title) : Screen::Screen(title) {}
+ScreenBarGraph::ScreenBarGraph(unsigned char id, String title) : Screen::Screen(id, title) {}
 void ScreenBarGraph::addBar(double value, String label) {
     this->values.push_back(value);
     this->labels.push_back(label);

@@ -6,23 +6,25 @@
 
 ScreenMenu::ScreenMenu() : Screen::Screen() {
 }
-ScreenMenu::ScreenMenu(String title) : Screen::Screen(title) {
+ScreenMenu::ScreenMenu(unsigned char id, String title) : Screen::Screen(id, title) {
     
 }
-ScreenMenu::ScreenMenu(String title, std::vector<String>& itemDisplayNames) : Screen::Screen(title) {
-    Serial.println("init screen menu ");
+ScreenMenu::ScreenMenu(unsigned char id, String title, std::vector<String>& itemDisplayNames) : Screen::Screen(id, title) {
     Serial.println(itemDisplayNames.size());
     for (unsigned int i = 0; i < itemDisplayNames.size(); i++) {
-        this->addItem(itemDisplayNames[i]);
+        this->addItemName(itemDisplayNames.at(i));
     }
 }
 void ScreenMenu::selectItem(unsigned char index) {
-
+    this->selectedItemIndex = index % this->itemCount;
+}
+void ScreenMenu::changeSelection(int indexChange) {
+    this->selectedItemIndex = (this->selectedItemIndex+indexChange) % this->itemCount;
 }
 void ScreenMenu::selectNextItem() {
     this->selectedItemIndex++;
 
-    if (this->selectedItemIndex >= this->menuItemCount) {
+    if (this->selectedItemIndex >= this->itemCount) {
         this->selectedItemIndex = 0;
     }
 }
@@ -30,55 +32,48 @@ void ScreenMenu::selectPreviousItem() {
     this->selectedItemIndex--;
 
     if (this->selectedItemIndex < 0) {
-        this->selectedItemIndex = this->menuItemCount - 1;
+        this->selectedItemIndex = this->itemCount - 1;
     }
 }
 void ScreenMenu::doDisplay() {
-    for (unsigned int i = 0; i < this->menuItemCount; i++) {
-        this->menuItems[i].doDisplay();
+    for (unsigned int i = 0; i < this->itemCount; i++) {
+        this->itemDisplayNames[i].doDisplay();
     }
 
-    Serial.print("displaying selector "+String(this->menuItemCount));
     this->doDisplaySelector();
-    Serial.print("displaying title ");
     Screen::doDisplay();
 }
 void ScreenMenu::doDisplaySelector() {
     Screen::display->setTextColor(WHITE);
     Screen::display->setRotation(0);
     Screen::display->fillTriangle(
-        this->contentAreaStartX, this->contentAreaStartY + (this->getMenuItemHeight(this->selectedItemIndex) * this->selectedItemIndex),
-        this->contentAreaStartX + this->SELECTOR_WIDTH, this->contentAreaStartY + (this->getMenuItemHeight(this->selectedItemIndex) * this->selectedItemIndex) + this->SELECTOR_HEIGHT/2,
-        this->contentAreaStartX, this->contentAreaStartY + (this->getMenuItemHeight(this->selectedItemIndex) * this->selectedItemIndex) + this->SELECTOR_HEIGHT,
+        this->CONTENT_AREA_START_X, this->CONTENT_AREA_START_Y + (this->getMenuItemHeight(this->selectedItemIndex) * this->selectedItemIndex),
+        this->CONTENT_AREA_START_X + this->SELECTOR_WIDTH, this->CONTENT_AREA_START_Y + (this->getMenuItemHeight(this->selectedItemIndex) * this->selectedItemIndex) + this->SELECTOR_HEIGHT/2,
+        this->CONTENT_AREA_START_X, this->CONTENT_AREA_START_Y + (this->getMenuItemHeight(this->selectedItemIndex) * this->selectedItemIndex) + this->SELECTOR_HEIGHT,
         WHITE
     );
 }
 unsigned int ScreenMenu::getMenuItemHeight(unsigned char index) {
-    if (index < 0 || index >= this->menuItemCount) {
+    if (index < 0 || index >= this->itemNameCount) {
         unsigned char padding = 1;
         return DisplayText::getFontCharHeight(DisplayText::DEFAULT_FONT_SIZE)+(padding*2);
     } else {
-        return this->menuItems[index].getHeight();
+        return this->itemDisplayNames[index].getHeight();
     }
 }
-void ScreenMenu::addItem(String displayName) {
-    unsigned char menuItemHeight = this->getMenuItemHeight(this->menuItemCount-1);
+void ScreenMenu::addItemName(String displayName) {
+    unsigned char menuItemHeight = this->getMenuItemHeight(this->itemNameCount-1);
     int startX = ScreenMenu::SELECTOR_PADDING_RIGHT + ScreenMenu::SELECTOR_WIDTH;
     int endX = Screen::display->width();
-    int startY = this->contentAreaStartY + (menuItemHeight * this->menuItemCount);
+    int startY = this->CONTENT_AREA_START_Y + (menuItemHeight * this->itemNameCount);
     int endY = startY + menuItemHeight;
     DisplayText newMenuItem(displayName, startX, startY, endX, endY);
     newMenuItem.topBottomPadding=1;
-    this->menuItems[this->menuItemCount++] = newMenuItem;
+    this->itemDisplayNames[this->itemNameCount++] = newMenuItem;
 }
-// void ScreenMenu::addItemAction(String displayName, VoidFunction action) {
-//     this->itemDisplayNames.push_back(displayName);
-//     if (this->actions.size()+1 < this->itemDisplayNames.size()) {
-//         this->actions.resize(this->itemDisplayNames.size()-1);
-//     }
-//     std::vector<VoidFunction>::iterator itr = this->actions.end();
-//     this->actions.insert(itr + 1, action);
-// }
+void ScreenMenu::addItem(Screen& screen) {
+    this->items[this->itemCount++] = &screen;
+}
 // void ScreenMenu::addItemSubMenu(String displayName, ScreenMenu& subMenu) {
 //     this->itemDisplayNames.push_back(displayName);
 //     if (this->childMenus.size()+1 < this->itemDisplayNames.size()) {
@@ -98,15 +93,15 @@ void ScreenMenu::addItem(String displayName) {
 //         return *(this->childMenus.at(this->selectedItemIndex));
 //     }
 // }
-// VoidFunction ScreenMenu::getSelectedAction() {
-//     if (this->actions.size() > this->selectedItemIndex) {
-//         return this->actions.at(this->selectedItemIndex);
-//     }
-// }
-// String ScreenMenu::getSelectedItemDisplayName() {
-//     if (this->itemDisplayNames.size() > this->selectedItemIndex) {
-//         return this->itemDisplayNames.at(this->selectedItemIndex);
-//     } else {
-//         return "";
-//     }
-// }
+Screen& ScreenMenu::getSelectedItem() {
+    if (this->itemCount > this->selectedItemIndex) {
+        return *(this->items[this->selectedItemIndex]);
+    }
+}
+String ScreenMenu::getSelectedItemDisplayName() {
+    if (this->itemNameCount > 0) {
+        return this->itemDisplayNames[this->selectedItemIndex].text;
+    } else {
+        return "";
+    }
+}

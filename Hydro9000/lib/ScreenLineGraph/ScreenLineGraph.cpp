@@ -6,17 +6,17 @@
 #include "Adafruit_SSD1306.h"
 
 ScreenLineGraph::ScreenLineGraph() : Screen::Screen() {}
-ScreenLineGraph::ScreenLineGraph(String title, String xAxisLabel, String yAxisLabel) : Screen::Screen(title) {
+ScreenLineGraph::ScreenLineGraph(unsigned char id, String title, String xAxisLabel, String yAxisLabel) : Screen::Screen(id, title) {
     this->xAxisLabel = DisplayText(
         xAxisLabel, 
         this->startX, this->startY+this->height,
         this->startX+this->width,
-        this->contentAreaStartY+this->contentAreaHeight);
+        this->CONTENT_AREA_START_Y+this->CONTENT_AREA_HEIGHT);
     this->yAxisLabel = DisplayText(
         yAxisLabel, 
         Screen::display->height() - (this->startY+this->height),
-        this->contentAreaStartX,
-        Screen::display->height() - this->contentAreaStartY,
+        this->CONTENT_AREA_START_X,
+        Screen::display->height() - this->CONTENT_AREA_START_Y,
         this->startX,
         3);
 }
