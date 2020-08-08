@@ -23,6 +23,7 @@ class PlantController {
         
         String name;
         String displayName;
+        bool isActive = true;
 
         PlantController();
         PlantController(MoistureSensor& sensor, WaterPump& pump);
@@ -41,6 +42,8 @@ class PlantController {
 		bool isNextQuarterHour();
 		bool hasMetGoal();
 		bool isRunning();
+		void setGoal(double percentage);
+        void updateReadings();
         
     private:
         MoistureSensor sensor;

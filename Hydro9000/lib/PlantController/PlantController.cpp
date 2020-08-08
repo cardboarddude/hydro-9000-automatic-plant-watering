@@ -17,8 +17,11 @@ void PlantController::setup(unsigned int eepromAddress) {
     this->addressOffset += this->history.addressOffset;
 }
 void PlantController::update() {
+    this->updateReadings();
+}
+void PlantController::updateReadings() {
     this->sensor.read();
-    
+
     if (this->isNextSecond()) {
         this->history.pushLastSecondReadings(this->sensor.getAverageReading());
         this->sensor.resetReadings();
@@ -39,6 +42,9 @@ void PlantController::update() {
         this->history.saveData();
         this->doSaveData = false;
     }
+}
+bool PlantController::hasMetGoal() {
+    return this->sensor.hasMetGoal();
 }
 void PlantController::stopPump() {
     this->pump.stop();
@@ -88,4 +94,8 @@ bool PlantController::isNextQuarterHour() {
 }
 bool PlantController::isRunning() {
     return this->pump.isRunning;
+}
+void PlantController::setGoal(double percentage) {
+    Serial.println("Now saving for "+this->displayName+" ("+this->name+") = "+String(percentage));
+    this->sensor.setGoal(percentage);
 }
