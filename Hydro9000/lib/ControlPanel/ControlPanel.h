@@ -26,6 +26,8 @@ class ControlPanel {
 			MOISTURE_LEVEL_HISTORY_SECONDS,
 			MOISTURE_LEVEL_HISTORY_MINUTES,
 			MOISTURE_LEVEL_HISTORY_QUARTER_HOURS,
+			GOAL_PLANT_SELECTION,
+			SET_GOALS,
 			PUMP_CONTROL
 		};
         enum ButtonName {
@@ -38,7 +40,7 @@ class ControlPanel {
 		ScreenName activeScreenName;
 
 		ControlPanel();
-		void setup(std::vector<String> plantNames);
+		void setup(String plantNames[], unsigned char plantNameCount);
         void addSelectWheel(SelectWheel& selectWheel);
         void addButton(ControlPanel::ButtonName buttonName, Button& button);
 		void addScreen(ScreenName sType, Screen screen);
@@ -47,11 +49,12 @@ class ControlPanel {
 		void turnOffLeds();
 		std::vector<double> update(std::vector<double> data, bool isPumpRunning);
 		bool isEmergency();
-		void setupScreens(std::vector<String> plantNames);
+		bool isDisplayActive();
+		void setupScreens(String plantNames[], unsigned char plantNameCount);
 		void updateButtons();
 		bool wasAnyButtonClicked();
 		bool wasAnythingClicked();
-		std::vector<double> doAction();
+		std::vector<double> doNavigation();
 		void goToSelectedScreen();
 		void doScreenDisplay(std::vector<double> data);
 		ScreenName getScreenName(String displayName);
