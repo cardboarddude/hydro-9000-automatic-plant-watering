@@ -17,8 +17,9 @@ class Hydro9000 {
 			Hydro9000::currentMillis = millis;
 			ControlPanel::setCurrentMillis(millis);
 		}
-		bool isMultiplePumpsAtSameAllowed = false;
+		bool isMultiplePumpsAtSameAllowed = false, isManualWateringActive = false;
 		unsigned char plantCount = 0;
+		unsigned char selectedPlantId;
 
 		Hydro9000();
 		void update();
@@ -31,6 +32,8 @@ class Hydro9000 {
 		std::vector<double> getGoals();
 		void updatePumps(std::vector<double> pumpStatus);
 		bool isPumpRunning();
+		void saveGoal(double percentage);
+		bool isAutoWateringActive();
 
 	private:
 		PlantController plantControllers[Hydro9000::MAX_COUNT];

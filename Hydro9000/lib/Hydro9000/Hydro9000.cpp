@@ -16,39 +16,69 @@ void Hydro9000::addControlPanel(ControlPanel& controlPanel) {
 void Hydro9000::setup() {
     PlantController::currentMillis = Hydro9000::currentMillis;
     unsigned int address = 0;
-    std::vector<String> plantNames;
+    String plantNames[Hydro9000::MAX_COUNT];
+    unsigned char i;
     Serial.println("Setting up PlantControllers");
-    for (unsigned char i = 0; i < this->plantCount; i++) {
+    for (i = 0; i < this->plantCount; i++) {
         if (i > 0) {
             address += this->plantControllers[i-1].getAddressOffset();
         }
         this->plantControllers[i].setup(address);
-        plantNames.push_back(this->plantControllers[i].displayName);
+        plantNames[i] = this->plantControllers[i].displayName;
     }
     Serial.println("Setting up ControlPanel");
-    this->controlPanel.setup(plantNames);
+    this->controlPanel.setup(plantNames, i);
 }
 void Hydro9000::update() {
     std::vector<double> controlPanelUpdateResult;
 
     Hydro9000::setCurrentMillis(millis());
+    unsigned char previousScreenId = static_cast<unsigned char>(this->controlPanel.activeScreenName);
     // Serial.println("Updating@"+String(Hydro9000::currentMillis));
 
     this->updatePlantControllers();
     std::vector<double> data = this->getData();
     controlPanelUpdateResult = this->controlPanel.update(data, this->isPumpRunning());
 
-    if (this->controlPanel.activeScreenName == ControlPanel::ScreenName::PUMP_CONTROL) {
+    if (this->controlPanel.isDisplayActive() && this->controlPanel.activeScreenName == ControlPanel::ScreenName::PUMP_CONTROL) {
+        this->isManualWateringActive = true;
         this->updatePumps(controlPanelUpdateResult);
+    } else {
+        this->isManualWateringActive = false;
+    }
+    // Serial.println("Screen Id: "+String(previousScreenId));
+    if (controlPanelUpdateResult.size() > 0 && previousScreenId == ControlPanel::ScreenName::GOAL_PLANT_SELECTION) {
+        // Serial.println("Selected plant: "+String(controlPanelUpdateResult.at(0)));
+        this->selectedPlantId = controlPanelUpdateResult.at(0);
+    } else if (controlPanelUpdateResult.size() > 0 && this->controlPanel.activeScreenName == ControlPanel::ScreenName::SET_GOALS) {
+        this->saveGoal(controlPanelUpdateResult.at(0));
     }
 
     if (this->controlPanel.isEmergency()) {
         this->doEmergencyStop();
     }
 }
+bool Hydro9000::isAutoWateringActive() {
+    return !(this->isManualWateringActive && this->controlPanel.isDisplayActive());
+}
+void Hydro9000::saveGoal(double percentage) {
+    // Serial.println("Saving goal of "+String(percentage)+" for index "+String(this->selectedPlantId));
+    this->plantControllers[this->selectedPlantId].setGoal(percentage);
+}
 void Hydro9000::updatePlantControllers() {
     for (unsigned int i = 0; i < this->plantCount; i++) {
         this->plantControllers[i].update();
+
+        if (this->isAutoWateringActive()) {
+            if (this->plantControllers[i].isActive && !this->plantControllers[i].hasMetGoal()) {
+                if (!this->isPumpRunning()) {
+                    Serial.println("Watering plant "+this->plantControllers[i].displayName+"  Current: "+String(this->plantControllers[i].getCurrentPercentage())+" Goal: "+String(this->plantControllers[i].getGoal()));
+                    this->plantControllers[i].startPump();
+                }
+            } else {
+                this->plantControllers[i].stopPump();
+            }
+        }
     }
 }
 void Hydro9000::updatePumps(std::vector<double> pumpStatus) {
@@ -79,6 +109,8 @@ std::vector<double> Hydro9000::getData() {
         for (unsigned int i = 0; i < this->plantCount; i++) {
             data.push_back(this->plantControllers[i].isRunning());
         }
+    } else if (this->controlPanel.activeScreenName ==  ControlPanel::ScreenName::SET_GOALS) {
+        data.push_back(this->plantControllers[this->selectedPlantId].getGoal());
     }
 
     return data;
