@@ -4,27 +4,22 @@
 
 #include "Arduino.h"
 #include "../Screen/Screen.h"
-#include "../ControlPanel/ControlPanel.h"
-#include <vector>
-
-typedef void (*VoidFunction)(void);
 
 class ScreenMenu : public Screen {
     private:
-        static const unsigned char PROGMEM SELECTOR_HEIGHT = 8, SELECTOR_WIDTH = 8, SELECTOR_PADDING_RIGHT = 2;
-        static const unsigned char PROGMEM MENU_ITEMS_MAX_SIZE = 10;
+        static const unsigned char SELECTOR_HEIGHT PROGMEM = 8, SELECTOR_WIDTH = 8, SELECTOR_PADDING_RIGHT = 2;
+        static const unsigned char MENU_ITEMS_MAX_SIZE PROGMEM = 7;
         unsigned char itemNameCount = 0, itemCount = 0;
         
 	public: 
         unsigned char selectedItemIndex = 0;
 
-        ScreenMenu* parentMenu;
 		DisplayText itemDisplayNames[MENU_ITEMS_MAX_SIZE];
         Screen* items[MENU_ITEMS_MAX_SIZE];
 		
         ScreenMenu();
 		ScreenMenu(unsigned char id, String title);
-		ScreenMenu(unsigned char id, String title, std::vector<String>& itemDisplayNames);
+		ScreenMenu(unsigned char id, String title, String itemDisplayNames[], unsigned char displayNameCount);
 		void selectItem(unsigned char menuItemIndex);
 		void selectNextItem();
         void changeSelection(int indexChange);
@@ -39,6 +34,7 @@ class ScreenMenu : public Screen {
         // bool isActionSelected();
         // ScreenMenu& getSelectedSubMenu();
         void addItem(Screen& action);
+        void addItem(String displayName, Screen& screen);
         Screen& getSelectedItem();
         String getSelectedItemDisplayName();
 };
