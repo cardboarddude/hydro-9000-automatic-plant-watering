@@ -12,8 +12,8 @@ class Screen {
         static Adafruit_SSD1306* display;
         static bool isSetup;
 
-        static const unsigned char CONTENT_AREA_START_X = 0, CONTENT_AREA_START_Y = 20;
-        static const unsigned char CONTENT_AREA_HEIGHT = 43, CONTENT_AREA_WIDTH = 128;
+        static const unsigned char CONTENT_AREA_START_X PROGMEM = 0, CONTENT_AREA_START_Y PROGMEM = 20;
+        static const unsigned char CONTENT_AREA_HEIGHT PROGMEM = 43, CONTENT_AREA_WIDTH PROGMEM = 128;
         unsigned char id;
         
         Screen();
