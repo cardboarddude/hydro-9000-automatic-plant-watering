@@ -9,10 +9,9 @@ ScreenMenu::ScreenMenu() : Screen::Screen() {
 ScreenMenu::ScreenMenu(unsigned char id, String title) : Screen::Screen(id, title) {
     
 }
-ScreenMenu::ScreenMenu(unsigned char id, String title, std::vector<String>& itemDisplayNames) : Screen::Screen(id, title) {
-    Serial.println(itemDisplayNames.size());
-    for (unsigned int i = 0; i < itemDisplayNames.size(); i++) {
-        this->addItemName(itemDisplayNames.at(i));
+ScreenMenu::ScreenMenu(unsigned char id, String title, String itemDisplayNames[], unsigned char displayNameCount) : Screen::Screen(id, title) {
+    for (unsigned int i = 0; i < displayNameCount; i++) {
+        this->addItemName(itemDisplayNames[i]);
     }
 }
 void ScreenMenu::selectItem(unsigned char index) {
@@ -73,6 +72,10 @@ void ScreenMenu::addItemName(String displayName) {
 }
 void ScreenMenu::addItem(Screen& screen) {
     this->items[this->itemCount++] = &screen;
+}
+void ScreenMenu::addItem(String displayName, Screen& screen) {
+    this->addItemName(displayName);
+    this->addItem(screen);
 }
 // void ScreenMenu::addItemSubMenu(String displayName, ScreenMenu& subMenu) {
 //     this->itemDisplayNames.push_back(displayName);

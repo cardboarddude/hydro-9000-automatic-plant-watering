@@ -5,7 +5,6 @@
 #include "Arduino.h"
 #include "../Screen/Screen.h"
 #include "../ControlPanel/ControlPanel.h"
-#include <vector>
 
 class ScreenPump : public Screen {
     private:
@@ -20,7 +19,7 @@ class ScreenPump : public Screen {
 		
         ScreenPump();
 		ScreenPump(unsigned char id, String title);
-		ScreenPump(unsigned char id, String title, std::vector<String> pumpNames);
+		ScreenPump(unsigned char id, String title, String pumpNames[], unsigned char pumpCount);
         void addPump(String menuPumpName);
         virtual void doDisplay();
         void doBackgroundDisplay();

@@ -9,10 +9,9 @@ ScreenPump::ScreenPump() : Screen::Screen() {
 ScreenPump::ScreenPump(unsigned char id, String title) : Screen::Screen(id, title) {
     
 }
-ScreenPump::ScreenPump(unsigned char id, String title, std::vector<String> pumpNames) : Screen::Screen(id, title) {
-    Serial.println(pumpNames.size());
-    for (unsigned int i = 0; i < pumpNames.size(); i++) {
-        this->addPump(pumpNames.at(i));
+ScreenPump::ScreenPump(unsigned char id, String title, String pumpNames[], unsigned char pumpCount) : Screen::Screen(id, title) {
+    for (unsigned int i = 0; i < pumpCount; i++) {
+        this->addPump(pumpNames[i]);
     }
 }
 void ScreenPump::selectPump(unsigned char index) {
