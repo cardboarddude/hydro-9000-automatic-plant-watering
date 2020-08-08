@@ -9,7 +9,7 @@ class MoistureSensor {
 		int analogPin;
 		double currentReading, goalReading;
 		unsigned int readingTotal = 0;
-		unsigned short readingCount = 0;
+		unsigned int readingCount = 0;
 		unsigned int eepromAddress;
 
 	public:

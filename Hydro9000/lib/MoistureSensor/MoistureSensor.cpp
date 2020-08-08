@@ -25,7 +25,6 @@ double MoistureSensor::getAverageReading() {
 	if (this->readingCount == 0) {
 		return 0;
 	}
-	
 	return this->readingTotal / this->readingCount;
 }
 void MoistureSensor::resetReadings() {
@@ -40,10 +39,11 @@ void MoistureSensor::read() {
 	this->readingTotal += this->currentReading;
 }
 bool MoistureSensor::hasMetGoal() {
-	return this->goalReading <= this->getAverageReading();
+	return this->getGoalPercentage() <= this->getMoistureLevel();
 }
 void MoistureSensor::setGoal(double percentage) {
 	this->goalReading = this->maxReading - (percentage * (this->maxReading - this->minReading));
+	EEPROM.put(this->eepromAddress, this->goalReading);
 }
 double MoistureSensor::getGoalPercentage() {
 	double percent = (this->maxReading - this->goalReading) / (this->maxReading - this->minReading);
