@@ -76,7 +76,9 @@ void Hydro9000::updatePlantControllers() {
                     this->plantControllers[i].startPump();
                 }
             } else {
-                this->plantControllers[i].stopPump();
+                if (this->plantControllers[i].hasPumpRunMinimumDuration()) {
+                    this->plantControllers[i].stopPump();
+                }
             }
         }
     }

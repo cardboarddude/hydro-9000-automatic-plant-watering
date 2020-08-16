@@ -20,7 +20,7 @@ class ScreenMenu : public Screen {
         ScreenMenu();
 		ScreenMenu(unsigned char id, String title);
 		ScreenMenu(unsigned char id, String title, String itemDisplayNames[], unsigned char displayNameCount);
-		void selectItem(unsigned char menuItemIndex);
+		void selectItem(int menuItemIndex);
 		void selectNextItem();
         void changeSelection(int indexChange);
         virtual void doDisplay();

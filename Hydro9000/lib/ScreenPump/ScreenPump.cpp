@@ -14,8 +14,12 @@ ScreenPump::ScreenPump(unsigned char id, String title, String pumpNames[], unsig
         this->addPump(pumpNames[i]);
     }
 }
-void ScreenPump::selectPump(unsigned char index) {
-    this->selectedPumpIndex = index % this->pumpCount;
+void ScreenPump::selectPump(int index) {
+    int newIndex = index % this->pumpCount;
+    if (newIndex < 0) {
+        newIndex = this->pumpCount + newIndex;
+    }
+    this->selectedPumpIndex = newIndex;
 }
 void ScreenPump::changeSelection(int indexChange) {
     this->selectedPumpIndex = (this->selectedPumpIndex+indexChange) % this->pumpCount;

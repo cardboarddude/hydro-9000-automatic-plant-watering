@@ -1,5 +1,4 @@
 #include "SelectWheel.h"
-#include "EEPROM.h"
 
 SelectWheel::SelectWheel() {}
 SelectWheel::SelectWheel(unsigned char pinA, unsigned char pinB) {
@@ -38,10 +37,4 @@ void SelectWheel::setPinBFalling() {
   }
   this->isPinBHigh = false;
   this->hasChanged = true;
-}
-void SelectWheel::save() {
-    if (this->hasChanged) {
-        EEPROM.put(0, this->getClockwiseTurns());
-        this->hasChanged = false;
-    }
 }

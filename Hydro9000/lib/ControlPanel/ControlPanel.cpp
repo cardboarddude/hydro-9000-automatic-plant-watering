@@ -69,6 +69,9 @@ void ControlPanel::setupScreens(String plantNames[], unsigned char plantNameCoun
     ScreenMenu* goalSetting = new ScreenMenu(
         static_cast<unsigned char>(ScreenName::GOAL_PLANT_SELECTION), "GOALS", plantNames, plantNameCount
     );
+    // ScreenMenu* historySelection = new ScreenMenu(
+    //     static_cast<unsigned char>(ScreenName::HISTORY_PLANT_SELECTION), "HISTORY", plantNames, plantNameCount
+    // );
     for (unsigned char i = 0; i < plantNameCount; i++) {
         goalSetting->addItem(*this->screens[ScreenName::SET_GOALS]);
     }
@@ -240,8 +243,8 @@ std::vector<double> ControlPanel::doNavigation() {
             }
         } else {
             this->activeScreenName = ScreenName::MAIN_MENU;
+            this->selectWheel->resetTurns();
         }
-        this->selectWheel->resetTurns();
     } else if (this->activeScreenName == ScreenName::SET_GOALS) {
         if (!this->buttons[ButtonName::RED].isPressed) {
             int turns = this->selectWheel->getCounterClockwiseTurns() / this->selectWheel->incrementSize;

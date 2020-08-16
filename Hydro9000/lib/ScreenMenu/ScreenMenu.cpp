@@ -14,8 +14,12 @@ ScreenMenu::ScreenMenu(unsigned char id, String title, String itemDisplayNames[]
         this->addItemName(itemDisplayNames[i]);
     }
 }
-void ScreenMenu::selectItem(unsigned char index) {
-    this->selectedItemIndex = index % this->itemCount;
+void ScreenMenu::selectItem(int index) {
+    int newIndex = index % this->itemCount;
+    if (newIndex < 0) {
+        newIndex = this->itemCount + newIndex;
+    }
+    this->selectedItemIndex = newIndex;
 }
 void ScreenMenu::changeSelection(int indexChange) {
     this->selectedItemIndex = (this->selectedItemIndex+indexChange) % this->itemCount;

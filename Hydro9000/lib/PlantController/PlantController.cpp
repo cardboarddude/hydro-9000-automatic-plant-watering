@@ -44,7 +44,18 @@ void PlantController::updateReadings() {
     }
 }
 bool PlantController::hasMetGoal() {
-    return this->sensor.hasMetGoal();
+    bool hasMetGoal = this->sensor.hasMetGoal();
+
+    if (hasMetGoal) {
+        this->lastMetGoalAt = PlantController::currentMillis;
+    } else {
+        hasMetGoal = PlantController::currentMillis - this->lastMetGoalAt < PlantController::WAIT_AFTER_GOAL_MET_MS;
+    }
+
+    return hasMetGoal;
+}
+bool PlantController::hasPumpRunMinimumDuration() {
+    return PlantController::MINIMUM_PUMP_RUN_DURATION_MS <= PlantController::currentMillis - this->startedPumpAt;
 }
 void PlantController::stopPump() {
     this->pump.stop();
@@ -53,6 +64,7 @@ void PlantController::togglePump() {
     this->pump.toggle();
 }
 void PlantController::startPump() {
+    this->startedPumpAt = PlantController::currentMillis;
     this->pump.start();
 }
 double PlantController::getGoal() {

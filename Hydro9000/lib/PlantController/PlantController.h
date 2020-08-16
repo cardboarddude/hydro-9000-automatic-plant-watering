@@ -10,6 +10,9 @@
 
 class PlantController {
 	public:
+        static const int MINIMUM_PUMP_RUN_DURATION_MS PROGMEM = 20000;
+        static const int WAIT_AFTER_GOAL_MET_MS PROGMEM = 5000;
+        
         // In milliseconds
 		enum TimePeriodInMS {
             SECOND = 1000,
@@ -42,6 +45,7 @@ class PlantController {
 		bool isNextQuarterHour();
 		bool hasMetGoal();
 		bool isRunning();
+		bool hasPumpRunMinimumDuration();
 		void setGoal(double percentage);
         void updateReadings();
         
@@ -54,6 +58,7 @@ class PlantController {
 		unsigned int readingTotalSinceLastMinute = 0;
 		unsigned short readingCountSinceLastMinute = 0;
 		unsigned long lastSecondMillis = 0, lastMinuteMillis = 0, lastQuarterHourMillis = 0;
+		unsigned long lastMetGoalAt = 0, startedPumpAt = 0;
         unsigned int addressOffset, eepromAddress;
 };
 

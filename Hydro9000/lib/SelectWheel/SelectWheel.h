@@ -1,4 +1,3 @@
-
 #ifndef SelectWheel_h
 #define SelectWheel_h
 
@@ -21,7 +20,6 @@ class SelectWheel {
         void readPinB();
         void setPinARising();
         void setPinBFalling();
-        void save();
 };
 
 #endif

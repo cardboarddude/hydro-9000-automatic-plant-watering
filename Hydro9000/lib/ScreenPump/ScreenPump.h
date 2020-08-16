@@ -26,7 +26,7 @@ class ScreenPump : public Screen {
         void doPumpNameDisplay();
 		void selectNextPump();
 		void selectPreviousPump();
-		void selectPump(unsigned char menuPumpIndex);
+		void selectPump(int menuPumpIndex);
         void changeSelection(int indexChange);
         String getSelectedPumpDisplayName();
 };
